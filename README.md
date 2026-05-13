@@ -5,5 +5,5 @@ List of members:
 
 - Anderson Komi Havah
 - Stephen Omondi Owino
-- 
+- Nico Uro
 - 
