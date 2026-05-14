@@ -7,3 +7,4 @@ List of members:
 - Stephen Omondi Owino
 - Nico Uro
 - Charles Kingsley Ajeigbe
+- Faith Oluwatise Idowu
