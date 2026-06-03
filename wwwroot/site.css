@@ -1,0 +1,360 @@
+
+:root {
+    --secondary: #03045E;
+    --primary: #0077B6;
+    --accent: #00B4D8;
+
+    --bg: #F8FAFC;
+    --surface: #fdfdfd;
+    --text: #1E293B;
+    --muted: #64748B;
+
+    --radius: 14px;
+
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-md: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Open Sans", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+
+h1, h2, h3, h4 {
+    font-family: "Lora", serif;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+
+p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    background: var(--primary);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+}
+
+.header__logo img {
+    height: 40px;
+}
+
+.header__actions {
+    display: flex;
+    gap: 12px;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.icon-btn img {
+    width: 34px;
+    height: 34px;
+}
+
+.icon-btn:hover {
+    background: rgba(255,255,255,0.15);
+    transform: scale(1.05);
+}
+
+
+.search {
+    display: flex;
+    width: 50%;
+    max-width: 600px;
+}
+
+.search input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 30px 0 0 30px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.search input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,180,216,0.2);
+}
+
+.search button {
+    width: 50px;
+    border: none;
+    background: var(--accent);
+    border-radius: 0 30px 30px 0;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.search button:hover {
+    background: var(--secondary);
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+.main {
+    padding: 30px;
+    max-width: 1400px;
+    margin: auto;
+}
+
+
+/* =========================
+   BANNER GRID (UPDATED)
+========================= */
+.banner-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    padding: 20px;
+}
+
+/* =========================
+   BANNER BASE
+========================= */
+.banner {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    min-height: 220px;
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: flex-end; /* pushes content to bottom */
+}
+
+/* =========================
+   DARK OVERLAY (IMPORTANT)
+   makes text readable
+========================= */
+.banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.65),
+        rgba(0, 0, 0, 0.1)
+    );
+    z-index: 1;
+}
+
+/* =========================
+   TEXT CONTENT (BOTTOM LEFT)
+========================= */
+.banner__content {
+    position: relative;
+    z-index: 2;
+
+    padding: 18px;
+    color: white;
+
+    text-align: left;
+}
+
+.banner__content h2,
+.banner__content h3 {
+    color: white;
+    margin-bottom: 6px;
+}
+
+.banner__content p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+}
+
+/* =========================
+   LARGE BANNER HEIGHT
+========================= */
+.banner--large {
+    min-height: 420px;
+}
+
+.banner:hover {
+    transform: translateY(-4px);
+}
+
+.banner-grid__side {
+    display: grid;
+    grid-template-rows: 46% 46%;
+    gap: 20px;
+}
+
+
+.promo {
+    padding: 30px;
+}
+
+.promo__list {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 10px 0;
+}
+
+
+.product-card {
+    min-width: 220px;
+    width: 220px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-sm);
+    transition: 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+}
+
+.product-card__image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.product-card__details {
+    padding: 12px;
+}
+
+.product-card__title {
+    font-weight: 600;
+}
+
+.product-card__price {
+    color: var(--secondary);
+    font-weight: bold;
+}
+
+
+.shop-now {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 60px;
+    margin-top: 40px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--secondary), var(--accent));
+    color: white;
+}
+
+.shop-now h2 {
+    color: white;
+}
+
+.shop-now p {
+    color: rgba(255,255,255,0.9);
+}
+
+.shop-now button {
+    background: white;
+    color: var(--primary);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.shop-now button:hover {
+    transform: translateY(-2px);
+    background: #f1f5f9;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    background: var(--primary);
+    color: white;
+    padding: 40px;
+    margin-top: 60px;
+    gap: 10px;
+}
+
+.footer a {
+    color: #cbd5e1;
+    text-decoration: none;
+    display: block;
+    margin-top: 8px;
+    transition: 0.3s;
+}
+
+.footer a:hover {
+    color: white;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+@media (max-width: 768px) {
+
+    .header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .search {
+        width: 100%;
+    }
+
+
+    .banner-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .banner-grid__side {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        gap: 16px;
+    }
+
+    .shop-now {
+        padding: 30px;
+    }
+
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.6rem; }
+
+    .product-card {
+        width: 200px;
+    }
+}

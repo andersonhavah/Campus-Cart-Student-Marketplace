@@ -1,7 +1,21 @@
 ﻿@page "/"
+@using Campus_Cart_Student_Marketplace.Components.Shared
 
 <PageTitle>Home</PageTitle>
+<div class="main">
+    <p class="home_description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus laborum magnam repellat excepturi voluptatibus veniam.</p>
 
-<h1>Hello, world!</h1>
+    <BannerSection/>
 
-Welcome to your new app.
+    <ItemList sectionName= "Furniture"/>
+    <ItemList sectionName= "Books"/>
+
+    <div class="shop-now">
+        <div class="shop-now-content">
+            <h2>Shop the world. Ship for free.</h2>
+            <p>Discover international finds with free shipping included.</p>
+            <button><strong>Shop Now</strong></button>
+        </div>
+        <img />
+    </div>
+</div>

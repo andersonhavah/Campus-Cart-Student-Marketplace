@@ -1,0 +1,16 @@
+<NavLink class="product-card" href="#">
+    <div class="product-card__image">
+        <img src="@ImgPath" alt="@ItemName" />
+    </div>
+
+    <div class="product-card__details">
+        <p class="product-card__title">@ItemName</p>
+        <p class="product-card__price">$@ItemPrice</p>
+    </div>
+</NavLink>
+
+@code {
+    [Parameter] public string ImgPath { get; set; } = "/img/belleze.webp";
+    [Parameter] public string ItemName { get; set; } = "Belleze Ergonomic Mid";
+    [Parameter] public decimal ItemPrice { get; set; } = 100;
+}
