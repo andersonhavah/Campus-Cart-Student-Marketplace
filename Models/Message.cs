@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace CampusCart.Models
+namespace Campus_Cart_Student_Marketplace.Models
 {
     public class Message
     {
@@ -11,7 +11,7 @@ namespace CampusCart.Models
         public int ItemId { get; set; }
 
         // Navigation property so the message knows which product is being discussed
-        public Item? Item { get; set; }
+        public CartItem? Item { get; set; }
 
         [Required]
         public string SenderUserId { get; set; } = string.Empty;

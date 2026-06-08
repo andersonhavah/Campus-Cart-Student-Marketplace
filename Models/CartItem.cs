@@ -1,6 +1,6 @@
 using System;
 
-namespace CampusCart.Models
+namespace Campus_Cart_Student_Marketplace.Models
 {
     public class CartItem
     {
@@ -12,7 +12,7 @@ namespace CampusCart.Models
         public int ItemId { get; set; }
 
         // Navigation property to Nico's core Item model
-        public Item? Item { get; set; }
+        public CartItem? Item { get; set; }
 
         public int Quantity { get; set; } = 1;
 
