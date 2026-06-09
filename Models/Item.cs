@@ -28,17 +28,16 @@ namespace Campus_Cart_Student_Marketplace.Models
 
         public bool IsSold { get; set; } = false;
 
-        // --- Relationships ---
+        // --- Relationships & Foreign Keys ---
 
-        [Required]
-        public int CategoryId { get; set; }
+        [Required(ErrorMessage = "Please select a matching product category.")]
+        [Display(Name = "Category")]
 
         [ForeignKey("CategoryId")]
-        [Required]
-        public int CategoryId { get; set; }
+        public Category? Category { get; set; }
 
-        [System.ComponentModel.DataAnnotations.Schema.ForeignKey("CategoryId")]
-        public Campus_Cart_Student_Marketplace.Models.Category? Category { get; set; }
+        [Required]
+        public string ApplicationUserId { get; set; } = string.Empty;
 
         [ForeignKey("ApplicationUserId")]
         public ApplicationUser? Seller { get; set; }
