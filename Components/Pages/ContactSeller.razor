@@ -1,5 +1,5 @@
 @page "/contact-seller/{ItemId:int}"
-@inject CampusCart.Services.MessageService MessageService
+@inject Campus_Cart_Student_Marketplace.Services.MessageService MessageService
 @inject NavigationManager NavigationManager
 
 <div class="container my-5" style="max-width: 600px;">
@@ -38,14 +38,14 @@
 @code {
     [Parameter] public int ItemId { get; set; }
 
-    private CampusCart.Models.Message messageModel = new();
+    private Campus_Cart_Student_Marketplace.Models.Message messageModel = new();
     private bool isSuccess = false;
 
     protected override void OnInitialized()
     {
         messageModel.ItemId = ItemId;
-        messageModel.SenderUserId = "mock-buyer-555"; // Replace with real User Session context later
-        messageModel.ReceiverUserId = "mock-seller-999"; // Replace with item.OwnerId context later
+        messageModel.SenderUserId = "mock-buyer-555";
+        messageModel.ReceiverUserId = "mock-seller-999";
     }
 
     private void HandleSend()

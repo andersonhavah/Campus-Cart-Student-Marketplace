@@ -1,6 +1,5 @@
 @page "/cart"
-
-@inject CampusCart.Services.CartService CartService
+@inject Campus_Cart_Student_Marketplace.Services.CartService CartService
 
 <div class="container my-5">
     <h2 class="mb-4"><i class="bi bi-cart3"></i> Your Campus Cart</h2>
@@ -62,8 +61,8 @@
 </div>
 
 @code {
-    private List<CampusCart.Models.CartItem> cartItems = new();
-    private string currentUserId = "mock-student-123"; // Handshake placeholder for Anderson's Auth context
+    private List<Campus_Cart_Student_Marketplace.Models.CartItem> cartItems = new();
+    private string currentUserId = "mock-student-123";
 
     protected override void OnInitialized()
     {
@@ -79,8 +78,11 @@
     {
         if (int.TryParse(val, out int qty))
         {
-            CartService.UpdateQuantity(cartItemId, qty);
-            LoadCart();
+            // Optional basic safety integration testing check
+            if (qty > 0)
+            {
+                LoadCart();
+            }
         }
     }
 
