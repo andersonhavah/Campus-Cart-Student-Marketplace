@@ -1,0 +1,58 @@
+@page "/marketplace"
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager Nav
+@using Campus_Cart_Student_Marketplace.Components.Shared
+@using CampusCart.Models
+
+<PageTitle>MarketPlace</PageTitle>
+
+<div class="main">
+    <div class="market">
+
+        <!-- Sidebar -->
+        <aside class="market-side">
+            <h3>Categories</h3>
+
+            <div class="category-list">
+                <label><input type="checkbox" /> Furniture</label>
+                <label><input type="checkbox" /> Electronics</label>
+                <label><input type="checkbox" /> Fashion</label>
+                <label><input type="checkbox" /> Books</label>
+                <label><input type="checkbox" /> Accessories</label>
+            </div>
+
+            <div class="price-filter">
+                <label>
+                    Maximum Price: <strong>₦@MaxPrice</strong>
+                </label>
+
+                <input type="range"
+                       min="0"
+                       max="500000"
+                       step="1000"
+                       @bind="MaxPrice" />
+            </div>
+        </aside>
+
+        <!-- Products -->
+        <section class="market-main">
+            <ItemComponent />
+            <ItemComponent />
+            <ItemComponent />
+            <ItemComponent />
+            <ItemComponent />
+        </section>
+
+    </div>
+</div>
+
+
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? search { get; set; }
+
+    private int MaxPrice = 50000;
+
+
+}
