@@ -46,4 +46,12 @@ namespace Campus_Cart_Student_Marketplace.Models
         [ForeignKey("ApplicationUserId")]
         public ApplicationUser? Seller { get; set; }
     }
+
+    public class ApplicationUser
+    {
+    }
+
+    public class Category
+    {
+    }
 }
