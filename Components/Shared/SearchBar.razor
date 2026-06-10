@@ -1,29 +1,21 @@
 @inject NavigationManager Nav
 
-<form class="search" @onsubmit:preventDefault @onsubmit="HandleSearch">
+<div class="search" >
     <input type="text"
-           placeholder="Search for items..."
-           @bind="searchText"
-           @bind:after="HandleSearch" />   <!-- Optional: Search on Enter -->
+        placeholder="Search for items..."
+        @bind="searchText"
+        @bind:after="HandleSearch" />   <!-- Optional: Search on Enter -->
 
-    <button type="submit">
+    <button type="submit" @onclick="HandleSearch">
         <img src="/img/search.webp" alt="Search" />
     </button>
-</form>
+</div>
 
 @code {
     private string searchText = string.Empty;
 
-    private void HandleSearch()
-    {
-        if (string.IsNullOrWhiteSpace(searchText))
-        {
-            // Optional: You can clear results or do nothing
-            return;
-        }
-
-        Console.WriteLine($"Searching for: {searchText}");
-        
-        Nav.NavigateTo($"/marketplace?search={Uri.EscapeDataString(searchText.Trim())}");
+    public void HandleSearch()
+    {    
+       Nav.NavigateTo($"/marketplace?search={Uri.EscapeDataString(searchText.Trim())}");
     }
 }

@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "title": "Belleze Ergonomic Chair",
+    "description": "Comfortable chair",
+    "price": 100000,
+    "imageUrl": "/img/belleze.webp",
+    "condition": "Used",
+    "isAvailable": true,
+    "categoryId": 1,
+    "category": "Furniture",
+    "sellerName": "John Doe",
+    "sellerEmail": "john@example.com"
+  },
+  {
+    "id": 2,
+    "title": "Laptop Stand",
+    "description": "Adjustable aluminum stand",
+    "price": 15000,
+    "imageUrl": "/img/cart-icon.webp",
+    "condition": "Like New",
+    "isAvailable": true,
+    "categoryId": 2,
+    "category": "Electronics",
+    "sellerName": "Jane Smith",
+    "sellerEmail": "jane@example.com"
+  }
+]

@@ -1,16 +1,44 @@
-<NavLink class="product-card" href="#">
-    <div class="product-card__image">
-        <img src="@ImgPath" alt="@ItemName" />
+@using CampusCart.Models
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<div class="product-card" @onclick="HandleSearch">
+
+    <div class="product-card__image-container">
+        <img src="@item.ImageUrl" alt="@item.Title" class="product-card__image" />
     </div>
 
     <div class="product-card__details">
-        <p class="product-card__title">@ItemName</p>
-        <p class="product-card__price">$@ItemPrice</p>
+
+        <h3 class="product-card__title">
+            @item.Title
+        </h3>
+
+        <p class="product-card__price">
+            ₦@item.Price.ToString("N0")
+        </p>
+
+        <div class="product-card__meta">
+            <span>@item.Category</span>
+        </div>
+
+        <div class="product-card__footer">
+            <span>@item.CreatedAt</span>
+        </div>
+
     </div>
-</NavLink>
+
+</div>
 
 @code {
-    [Parameter] public string ImgPath { get; set; } = "/img/belleze.webp";
-    [Parameter] public string ItemName { get; set; } = "Belleze Ergonomic Mid";
-    [Parameter] public decimal ItemPrice { get; set; } = 100;
+
+
+    [Parameter]
+    public Item item {get; set;} = new();
+    
+
+    public void HandleSearch()
+    {    
+       Nav.NavigateTo($"/item/{item.Id}");
+    }
 }
