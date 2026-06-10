@@ -22,16 +22,16 @@
             <h3>Categories</h3>
 
             <div class="category-list">
-                @foreach(var category in Categories){
-                   <label>
-                        <input type="checkbox"
-                            checked="@SelectedCategories.Contains(category.Id)"
-                            @onchange="(e) => ToggleCategory(category.Id)" />
+                @foreach (var category in Categories)
+                {
+                    <label>
+                        <input type="checkbox" checked="@SelectedCategories.Contains(category.Id)"
+                               @onchange="(e) => ToggleCategory(category.Id)" />
 
                         @category.Name
                         (@GetCategoryCount(category.Id))
                     </label>
-                }  
+                }
             </div>
 
             <div class="price-filter">
@@ -39,12 +39,7 @@
                     Maximum Price: <strong>₦@MaxPrice</strong>
                 </label>
 
-                <input type="range"
-                    min="0"
-                    max="500000"
-                    step="1000"
-                    value="@MaxPrice"
-                    @oninput="UpdatePrice" />
+                <input type="range" min="0" max="500000" step="1000" value="@MaxPrice" @oninput="UpdatePrice" />
             </div>
         </aside>
 
@@ -82,16 +77,16 @@
             <h3>Categories</h3>
 
             <div class="category-list">
-                @foreach(var category in Categories){
+                @foreach (var category in Categories)
+                {
                     <label>
-                        <input type="checkbox"
-                            checked="@SelectedCategories.Contains(category.Id)"
-                            @onchange="(e) => ToggleCategory(category.Id)" />
+                        <input type="checkbox" checked="@SelectedCategories.Contains(category.Id)"
+                               @onchange="(e) => ToggleCategory(category.Id)" />
 
                         @category.Name
                         (@GetCategoryCount(category.Id))
                     </label>
-                }  
+                }
             </div>
 
             <div class="price-filter">
@@ -99,12 +94,7 @@
                     Maximum Price: <strong>₦@MaxPrice</strong>
                 </label>
 
-                <input type="range"
-                    min="0"
-                    max="500000"
-                    step="1000"
-                    value="@MaxPrice"
-                    @oninput="UpdatePrice" />
+                <input type="range" min="0" max="500000" step="1000" value="@MaxPrice" @oninput="UpdatePrice" />
             </div>
 
         </div>
@@ -129,8 +119,8 @@
 
     private List<Item> Items = [];
     private List<Item> items = [];
-    private List<Category> Categories = [];
-
+    // Change plain 'Category' to the absolute full namespace path:
+    private Campus_Cart_Student_Marketplace.Models.Category selectedCategory;
     protected override async Task OnParametersSetAsync()
     {
         Items = ItemService.GetItems();
@@ -140,8 +130,8 @@
         {
             SelectedCategories.Add(Category.Value);
         }
-        
-       await FilterItems(Search);
+
+        await FilterItems(Search);
     }
 
     private async Task FilterItems(string? search)

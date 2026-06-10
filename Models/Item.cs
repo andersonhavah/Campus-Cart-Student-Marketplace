@@ -1,30 +1,54 @@
-namespace CampusCart.Models;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-public class Item
+namespace Campus_Cart_Student_Marketplace.Models
 {
-    public int Id { get; set; }
+    public class Item
+    {
+        [Key]
+        public int Id { get; set; }
 
-    public string Title { get; set; } = string.Empty;
+        [Required]
+        [StringLength(100)]
+        public string Title { get; set; } = string.Empty;
 
-    public string Description { get; set; } = string.Empty;
+        [Required]
+        [StringLength(2000)]
+        public string Description { get; set; } = string.Empty;
 
-    public decimal Price { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Price { get; set; }
 
-    public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; } = "images/placeholder.png";
 
-    public string Condition { get; set; } = "Used";
+        public DateTime DatePosted { get; set; } = DateTime.UtcNow;
 
-    public bool IsAvailable { get; set; } = true;
+        public bool IsSold { get; set; } = false;
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // --- RELATIONSHIPS & FOREIGN KEYS ---
 
-    // Category Relationship
-    public int CategoryId { get; set; }
+        [Required]
+        public int CategoryId { get; set; }
 
-    public string Category { get; set; } = string.Empty;
+        [ForeignKey("CategoryId")]
+        public Category? Category { get; set; }
 
-    // Seller Information
-    public string SellerName { get; set; } = string.Empty;
+        [Required]
+        public string ApplicationUserId { get; set; } = string.Empty;
 
-    public string SellerEmail { get; set; } = string.Empty;
+        [ForeignKey("ApplicationUserId")]
+        public ApplicationUser? Seller { get; set; }
+    }
+
+    public class Category
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty;
+    }
 }

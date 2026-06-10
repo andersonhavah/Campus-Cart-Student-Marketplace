@@ -10,9 +10,7 @@
 
         <div class="item-details__gallery">
 
-            <img class="main-image"
-                src="@item.ImageUrl"
-                alt="@item.Title" />
+            <img class="main-image" src="@item.ImageUrl" alt="@item.Title" />
 
             <div class="thumbnail-list">
 
@@ -122,10 +120,12 @@
             }
             else
             {
-                @foreach(var I in Items){
-                    if (I.CategoryId == item.CategoryId ){
+                @foreach (var I in Items)
+                {
+                    if (I.CategoryId == item.CategoryId)
+                    {
                         <ItemComponent @key="item.Id" item=@item />
-                    }    
+                    }
                 }
             }
 
@@ -141,13 +141,15 @@
     private Item item = new();
 
     private List<Item> Items = [];
-    private List<Category> Categories = [];
-
+    // Change plain 'Category' to the absolute full namespace path:
+    private Campus_Cart_Student_Marketplace.Models.Category currentCategory;
     protected override async Task OnInitializedAsync()
     {
         Items = ItemService.GetItems();
-        foreach(Item I in Items){
-            if (Id == I.Id){
+        foreach (Item I in Items)
+        {
+            if (Id == I.Id)
+            {
                 item = I;
             }
         }
