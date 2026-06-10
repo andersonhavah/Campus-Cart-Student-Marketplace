@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CampusCart.Models;
+using Campus_Cart_Student_Marketplace.Models;
 
-namespace CampusCart.Services
+namespace Campus_Cart_Student_Marketplace.Services
 {
     public class CartService
     {
         private readonly List<CartItem> _mockCart = new();
-
-        // Event to notify UI components (like a layout badge) to re-render when items change
         public event Action? OnCartChanged;
 
         public List<CartItem> GetCartItems(string userId)
@@ -36,7 +34,7 @@ namespace CampusCart.Services
                     Quantity = 1
                 });
             }
-            NotifyCartChanged();
+            OnCartChanged?.Invoke();
         }
 
         public void RemoveFromCart(int cartItemId)
@@ -45,17 +43,7 @@ namespace CampusCart.Services
             if (item != null)
             {
                 _mockCart.Remove(item);
-                NotifyCartChanged();
-            }
-        }
-
-        public void UpdateQuantity(int cartItemId, int quantity)
-        {
-            var item = _mockCart.FirstOrDefault(c => c.Id == cartItemId);
-            if (item != null && quantity > 0)
-            {
-                item.Quantity = quantity;
-                NotifyCartChanged();
+                OnCartChanged?.Invoke();
             }
         }
 
@@ -64,7 +52,5 @@ namespace CampusCart.Services
             return _mockCart.Where(c => c.ApplicationUserId == userId)
                              .Sum(c => (c.Item?.Price ?? 0) * c.Quantity);
         }
-
-        private void NotifyCartChanged() => OnCartChanged?.Invoke();
     }
 }
