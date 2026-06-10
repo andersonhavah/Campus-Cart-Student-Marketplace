@@ -1,17 +1,102 @@
+@rendermode InteractiveServer
+
 <header class="header">
-    <div class="header__logo">
-        <img src="/img/logo-2.webp" alt="Campus Cart Logo" />
+
+    <div class="header__logo__menu">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn"
+                @onclick="ToggleMenu">
+            ☰
+        </button>
+
+        <NavLink class="header__logo" href="/">
+            <img src="/img/logo-2.webp" alt="Campus Cart Logo" />
+        </NavLink>
     </div>
 
-    <SearchBar />
+    <div class="header__search">
+        <SearchBar />
+    </div>
+        
 
-    <div class="header__actions">
-        <button class="icon-btn">
-            <img src="/img/user-icon.webp" alt="User" />
-        </button>
+    <div class="desktop-actions">
+
+        <div class="user-menu">
+            <button class="icon-btn user-btn" @onclick="ToggleMenu">
+                <img src="/img/user-icon.webp" alt="User" />
+                <span>Account</span>
+                <span class="arrow">▼</span>
+            </button>
+
+            <div class="dropdown-menu">
+                <NavLink href="/profile">My Profile</NavLink>
+                <NavLink href="/my-listings">My Listings</NavLink>
+                <hr />
+                <NavLink href="/logout">Logout</NavLink>
+            </div>
+        </div>
 
         <button class="icon-btn">
             <img src="/img/cart-icon.webp" alt="Cart" />
         </button>
+
     </div>
+
+    
+
 </header>
+
+@if (ShowMobileMenu)
+{
+    <div class="mobile-menu-overlay" @onclick="CloseMenu">
+
+        <div class="mobile-menu"
+             @onclick:stopPropagation="true">
+
+            <div class="mobile-menu-header">
+                <h3>Menu</h3>
+
+                <button class="close-btn"
+                        @onclick="CloseMenu">
+                    ✕
+                </button>
+            </div>
+
+            <NavLink href="/profile">Profile</NavLink>
+
+            <NavLink href="/my-listings">
+                My Listings
+            </NavLink>
+
+            <NavLink href="/cart">
+                Cart
+            </NavLink>
+
+            <NavLink href="/sell">
+                Sell Item
+            </NavLink>
+
+            <NavLink href="/logout">
+                Logout
+            </NavLink>
+
+        </div>
+
+    </div>
+}
+
+@code {
+
+    private bool ShowMobileMenu;
+
+    private void ToggleMenu()
+    {
+        ShowMobileMenu = !ShowMobileMenu;
+    }
+
+    private void CloseMenu()
+    {
+        ShowMobileMenu = false;
+    }
+
+}

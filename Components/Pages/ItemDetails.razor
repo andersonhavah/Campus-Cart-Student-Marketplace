@@ -1,0 +1,157 @@
+@page "/item/{Id:int}"
+@using Campus_Cart_Student_Marketplace.Components.Shared
+@inject ItemService ItemService
+@inject CategoryService CategoryService
+@using CampusCart.Models
+
+<PageTitle>Item Details</PageTitle>
+<div class="main">
+    <div class="item-details">
+
+        <div class="item-details__gallery">
+
+            <img class="main-image"
+                src="@item.ImageUrl"
+                alt="@item.Title" />
+
+            <div class="thumbnail-list">
+
+                <img src="@item.ImageUrl" alt="" />
+                <img src="@item.ImageUrl" alt="" />
+                <img src="@item.ImageUrl" alt="" />
+
+            </div>
+
+        </div>
+
+        <div class="item-details__info">
+
+            <span class="item-category">
+                @item.Category
+            </span>
+
+            <h1>
+                @item.Title
+            </h1>
+
+            <div class="item-price">
+                ₦@item.Price
+            </div>
+
+            <p class="item-description">
+
+                @item.Description
+
+            </p>
+
+            <div class="item-meta">
+
+                <div>
+                    <strong>Condition</strong>
+                    <span>@item.Condition</span>
+                </div>
+
+                <div>
+                    <strong>Location</strong>
+                    <span>University Campus</span>
+                </div>
+
+                <div>
+                    <strong>Posted</strong>
+                    <span>@item.CreatedAt</span>
+                </div>
+
+            </div>
+
+            <div class="seller-card">
+
+                <div class="seller-avatar">
+                    JD
+                </div>
+
+                <div>
+
+                    <h3>@item.SellerName</h3>
+
+                    <p>Student Seller</p>
+
+                </div>
+
+            </div>
+
+            <div class="details-actions">
+
+                <button class="primary-btn">
+                    Contact Seller
+                </button>
+
+                <button class="secondary-btn">
+                    Save Item
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <section class="promo">
+
+        <div class="promo__header">
+
+            <div>
+                <h2 class="promo__title">
+                    Similar Items
+                </h2>
+
+                <p class="promo__subtitle">
+                    Other items you may like.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="promo__list">
+            @if (Items.Count <= 0)
+            {
+                @for (int i = 0; i < 12; i++)
+                {
+                    <Loading Text="Loading marketplace items..." />
+                }
+            }
+            else
+            {
+                @foreach(var I in Items){
+                    if (I.CategoryId == item.CategoryId ){
+                        <ItemComponent @key="item.Id" item=@item />
+                    }    
+                }
+            }
+
+        </div>
+
+    </section>
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+    private Item item = new();
+
+    private List<Item> Items = [];
+    private List<Category> Categories = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        Items = ItemService.GetItems();
+        foreach(Item I in Items){
+            if (Id == I.Id){
+                item = I;
+            }
+        }
+        Categories = CategoryService.GetCategories();
+    }
+
+}

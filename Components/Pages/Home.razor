@@ -1,21 +1,366 @@
 ﻿@page "/"
 @using Campus_Cart_Student_Marketplace.Components.Shared
+@using CampusCart.Models
+@inject ItemService ItemService
+@inject CategoryService CategoryService
+@inject NavigationManager Nav
 
-<PageTitle>Home</PageTitle>
-<div class="main">
-    <p class="home_description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus laborum magnam repellat excepturi voluptatibus veniam.</p>
+<PageTitle>Campus Cart</PageTitle>
 
-    <BannerSection/>
+<div class="main home-page">
 
-    <ItemList sectionName= "Furniture"/>
-    <ItemList sectionName= "Books"/>
+    <!-- =========================================
+         HERO SECTION
+    ========================================== -->
 
-    <div class="shop-now">
-        <div class="shop-now-content">
-            <h2>Shop the world. Ship for free.</h2>
-            <p>Discover international finds with free shipping included.</p>
-            <button><strong>Shop Now</strong></button>
+    <section class="promo-banner">
+
+        <div class="promo-content">
+
+            <span class="promo-badge">
+                🎓 Campus Marketplace
+            </span>
+
+            <h1>Buy, Sell & Save With Students Near You</h1>
+
+            <p>
+                Find textbooks, furniture, electronics,
+                fashion and more from your campus community.
+                Save money and support fellow students.
+            </p>
+
+            <div class="promo-actions">
+
+                <NavLink href="/marketplace"
+                        class="primary-btn">
+                    Explore Marketplace
+                </NavLink>
+
+                <NavLink href="/sell"
+                        class="secondary-btn">
+                    Start Selling
+                </NavLink>
+
+            </div>
+
         </div>
-        <img />
-    </div>
+
+
+    </section>
+
+    <!-- =========================================
+         FEATURED BANNERS
+    ========================================== -->
+
+    <section class="banner-grid">
+
+        <NavLink class="banner banner--large"
+                 href="/marketplace"
+                 style="background-image:url('/img/banner-main.webp')">
+
+            <div class="banner__content">
+
+                <span class="banner__tag">
+                    Campus Marketplace
+                </span>
+
+                <h2>Buy & Sell With Students Near You</h2>
+
+                <p>
+                    Discover textbooks, electronics,
+                    furniture, fashion and more.
+                </p>
+
+            </div>
+
+        </NavLink>
+
+        <div class="banner-grid__side">
+
+            <NavLink class="banner banner--deal"
+                     href="/marketplace">
+
+                <div class="banner__content">
+
+                    <span class="banner__tag">
+                        Trending
+                    </span>
+
+                    <h3>Great Deals</h3>
+
+                    <p>
+                        Save money on student listings.
+                    </p>
+
+                </div>
+
+            </NavLink>
+
+            <NavLink class="banner banner--sell"
+                     href="/sell">
+
+                <div class="banner__content">
+
+                    <span class="banner__tag">
+                        Start Selling
+                    </span>
+
+                    <h3>Sell In Minutes</h3>
+
+                    <p>
+                        Post items and connect with buyers.
+                    </p>
+
+                </div>
+
+            </NavLink>
+
+        </div>
+
+    </section>
+
+    <!-- =========================================
+         CATEGORIES
+    ========================================== -->
+
+    <section class="categories">
+
+        <div class="promo__header">
+
+            <div>
+                <h2 class="promo__title">
+                    Browse Categories
+                </h2>
+
+                <p class="promo__subtitle">
+                    Explore what's available on campus.
+                </p>
+            </div>
+
+            <NavLink href="/marketplace"
+                     class="promo__view-all">
+                View All →
+            </NavLink>
+
+        </div>
+
+        <div class="category-grid">
+             @foreach(var category in Categories){
+                <div class="category-card"
+                    @onclick="() => HandleSearch(category.Id)">
+                    @category.Name
+                </div>
+            }
+
+        </div>
+
+    </section>
+
+    <!-- =========================================
+         FURNITURE
+    ========================================== -->
+
+    <section class="promo">
+
+        <div class="promo__header">
+
+            <div>
+                <h2 class="promo__title">
+                    Furniture
+                </h2>
+
+                <p class="promo__subtitle">
+                    Browse the latest furniture listings.
+                </p>
+            </div>
+
+            <NavLink href="/marketplace"
+                     class="promo__view-all">
+                View All →
+            </NavLink>
+
+        </div>
+
+        <div class="promo__list">
+            @if (Items.Count <= 0)
+            {
+                @for (int i = 0; i < 12; i++)
+                {
+                    <Loading Text="Loading marketplace items..." />
+                }
+            }
+            else
+            {
+                @foreach(var item in Items){
+                    if (item.CategoryId == 1 ){
+                        <ItemComponent @key="item.Id" item=@item />
+                    }    
+                }
+            }
+
+        </div>
+
+    </section>
+
+    <!-- =========================================
+         BOOKS
+    ========================================== -->
+
+    <section class="promo">
+
+        <div class="promo__header">
+
+            <div>
+                <h2 class="promo__title">
+                    Books
+                </h2>
+
+                <p class="promo__subtitle">
+                    Popular textbooks and study materials.
+                </p>
+            </div>
+
+            <NavLink href="/marketplace"
+                     class="promo__view-all">
+                View All →
+            </NavLink>
+
+        </div>
+
+        <div class="promo__list">
+            @if (Items.Count <= 0)
+            {
+                @for (int i = 0; i < 12; i++)
+                {
+                    <Loading Text="Loading marketplace items..." />
+                }
+            }
+            else
+            {
+                @foreach(var item in Items){
+                    if (item.CategoryId == 4 ){
+                        <ItemComponent @key="item.Id" item=@item />
+                    }    
+                }
+            }
+
+        </div>
+
+    </section>
+
+    <!-- =========================================
+         ELECTRONICS
+    ========================================== -->
+
+    <section class="promo">
+
+        <div class="promo__header">
+
+            <div>
+                <h2 class="promo__title">
+                    Electronics
+                </h2>
+
+                <p class="promo__subtitle">
+                    Phones, laptops and gadgets.
+                </p>
+            </div>
+
+            <NavLink href="/marketplace"
+                     class="promo__view-all">
+                View All →
+            </NavLink>
+
+        </div>
+
+        <div class="promo__list">
+             @if (Items.Count <= 0)
+            {
+                @for (int i = 0; i < 12; i++)
+                {
+                    <Loading Text="Loading marketplace items..." />
+                }
+            }
+            else
+            {
+                @foreach(var item in Items){
+                    if (item.CategoryId == 3 ){
+                        <ItemComponent @key="item.Id" item=@item />
+                    }    
+                }
+            }
+        </div>
+
+    </section>
+
+    <!-- =========================================
+         STATS SECTION
+    ========================================== -->
+
+    <section class="stats-section">
+
+        <div class="stat-card">
+            <h2>2,000+</h2>
+            <p>Active Listings</p>
+        </div>
+
+        <div class="stat-card">
+            <h2>500+</h2>
+            <p>Student Sellers</p>
+        </div>
+
+        <div class="stat-card">
+            <h2>10+</h2>
+            <p>Categories</p>
+        </div>
+
+        <div class="stat-card">
+            <h2>24/7</h2>
+            <p>Marketplace Access</p>
+        </div>
+
+    </section>
+
+    <!-- =========================================
+         FINAL CTA
+    ========================================== -->
+
+    <section class="shop-now">
+
+        <div class="shop-now-content">
+
+            <h2>Ready To Start Selling?</h2>
+
+            <p>
+                Turn unused items into cash and help
+                fellow students find what they need.
+            </p>
+            <NavLink href="/sell">   
+                <button>
+                    <strong>Sell An Item</strong>
+                </button>
+            </NavLink>
+            
+
+        </div>
+
+    </section>
+
 </div>
+
+@code{
+    private List<Item> Items = [];
+    private List<Category> Categories = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        Items = ItemService.GetItems();
+        Categories = CategoryService.GetCategories();
+    }
+
+    private async Task HandleSearch(int categoryId)
+    {
+        Nav.NavigateTo($"/marketplace?category={categoryId}");
+    }
+
+}
