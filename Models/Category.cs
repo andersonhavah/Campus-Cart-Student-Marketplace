@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CampusCart.Models
+namespace Campus_Cart_Student_Marketplace.Models
 {
    public class Category
     {
