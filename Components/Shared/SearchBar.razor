@@ -1,7 +1,21 @@
-<form class="search">
-    <input type="text" placeholder="Search for items..." />
+@inject NavigationManager Nav
 
-    <button type="submit">
+<div class="search" >
+    <input type="text"
+        placeholder="Search for items..."
+        @bind="searchText"
+        @bind:after="HandleSearch" />   <!-- Optional: Search on Enter -->
+
+    <button type="submit" @onclick="HandleSearch">
         <img src="/img/search.webp" alt="Search" />
     </button>
-</form>
+</div>
+
+@code {
+    private string searchText = string.Empty;
+
+    public void HandleSearch()
+    {    
+       Nav.NavigateTo($"/marketplace?search={Uri.EscapeDataString(searchText.Trim())}");
+    }
+}
