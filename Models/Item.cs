@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-
 namespace Campus_Cart_Student_Marketplace.Models
 {
     public class Item
@@ -28,16 +27,10 @@ namespace Campus_Cart_Student_Marketplace.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Category Relationship
+        // Category Reference
         public int CategoryId { get; set; }
 
-        [ForeignKey(nameof(CategoryId))]
-        public Category? Category { get; set; }
-
-        // Seller Relationship
+        // Seller Reference
         public string SellerId { get; set; } = string.Empty;
-
-        [ForeignKey(nameof(SellerId))]
-        public ApplicationUser? Seller { get; set; }
     }
 }

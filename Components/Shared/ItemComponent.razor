@@ -1,6 +1,7 @@
 @using Campus_Cart_Student_Marketplace.Models
 @inject NavigationManager Nav
 @rendermode InteractiveServer
+@inject Campus_Cart_Student_Marketplace.Services.CategoryService CategoryService
 
 <div class="product-card" @onclick="HandleSearch">
 
@@ -19,7 +20,7 @@
         </p>
 
         <div class="product-card__meta">
-            <span>@item.Category</span>
+            <span>@CategoryService.GetCategoryById(item.CategoryId).Name</span>
         </div>
 
         <div class="product-card__footer">
@@ -36,9 +37,11 @@
     [Parameter]
     public Item item {get; set;} = new();
     
+    
 
     public void HandleSearch()
     {    
        Nav.NavigateTo($"/item/{item.Id}");
     }
+
 }

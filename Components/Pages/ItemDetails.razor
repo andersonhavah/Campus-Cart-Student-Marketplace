@@ -1,24 +1,26 @@
 @page "/item/{Id:int}"
 @using Campus_Cart_Student_Marketplace.Components.Shared
-@inject ItemService ItemService
-@inject CategoryService CategoryService
+@inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
+@inject Campus_Cart_Student_Marketplace.Services.CategoryService CategoryService
+@inject Campus_Cart_Student_Marketplace.Services.CartService CartService
 @using Campus_Cart_Student_Marketplace.Models
+@inject NavigationManager Nav
 
-<PageTitle>Item Details</PageTitle>
+<PageTitle>Campus Cart - @Item.Title</PageTitle>
 <div class="main">
     <div class="item-details">
 
         <div class="item-details__gallery">
 
             <img class="main-image"
-                src="@item.ImageUrl"
-                alt="@item.Title" />
+                src="@Item.ImageUrl"
+                alt="@Item.Title" />
 
             <div class="thumbnail-list">
 
-                <img src="@item.ImageUrl" alt="" />
-                <img src="@item.ImageUrl" alt="" />
-                <img src="@item.ImageUrl" alt="" />
+                <img src="@Item.ImageUrl" alt="" />
+                <img src="@Item.ImageUrl" alt="" />
+                <img src="@Item.ImageUrl" alt="" />
 
             </div>
 
@@ -27,20 +29,20 @@
         <div class="item-details__info">
 
             <span class="item-category">
-                @item.Category
+                @CategoryService.GetCategoryById(Item.CategoryId).Name
             </span>
 
             <h1>
-                @item.Title
+                @Item.Title
             </h1>
 
             <div class="item-price">
-                ₦@item.Price
+                ₦@Item.Price
             </div>
 
             <p class="item-description">
 
-                @item.Description
+                @Item.Description
 
             </p>
 
@@ -48,7 +50,7 @@
 
                 <div>
                     <strong>Condition</strong>
-                    <span>@item.Condition</span>
+                    <span>@Item.Condition</span>
                 </div>
 
                 <div>
@@ -58,7 +60,7 @@
 
                 <div>
                     <strong>Posted</strong>
-                    <span>@item.CreatedAt</span>
+                    <span>@Item.CreatedAt</span>
                 </div>
 
             </div>
@@ -71,7 +73,7 @@
 
                 <div>
 
-                    <h3>@item.SellerName</h3>
+                    <h3>John Doe</h3>
 
                     <p>Student Seller</p>
 
@@ -81,11 +83,11 @@
 
             <div class="details-actions">
 
-                <button class="primary-btn">
+                <button class="primary-btn" @onclick="HandleContact">
                     Contact Seller
                 </button>
 
-                <button class="secondary-btn">
+                <button class="primary-btn" @onclick="ToCart">
                     Save Item
                 </button>
 
@@ -122,10 +124,8 @@
             }
             else
             {
-                @foreach(var I in Items){
-                    if (I.CategoryId == item.CategoryId ){
-                        <ItemComponent @key="item.Id" item=@item />
-                    }    
+                @foreach(var I in ItemService.GetItemsByCategory(Item.CategoryId)){
+                    <ItemComponent item=@I />    
                 }
             }
 
@@ -138,20 +138,28 @@
 
     [Parameter]
     public int Id { get; set; }
-    private Item item = new();
+    private Item Item = new Item();
 
     private List<Item> Items = [];
     private List<Category> Categories = [];
 
     protected override async Task OnInitializedAsync()
     {
-        Items = ItemService.GetItems();
-        foreach(Item I in Items){
-            if (Id == I.Id){
-                item = I;
-            }
-        }
+        Item = ItemService.GetItemById(Id);
+        Items = ItemService.GetItemsByCategory(Item.CategoryId);
         Categories = CategoryService.GetCategories();
     }
+
+    public void HandleContact()
+    {    
+       Nav.NavigateTo($"/contact-seller/{Id}");
+    }
+
+    public void ToCart()
+    {
+        CartService.AddToCart(Item, Item.SellerId);
+        Nav.NavigateTo($"/cart");
+    }
+    
 
 }
