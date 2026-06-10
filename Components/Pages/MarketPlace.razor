@@ -1,0 +1,215 @@
+@page "/marketplace"
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+@using Campus_Cart_Student_Marketplace.Components.Shared
+@inject ItemService ItemService
+@inject CategoryService CategoryService
+@using CampusCart.Models
+
+<PageTitle>MarketPlace</PageTitle>
+
+<div class="main">
+
+    <button class="filter-toggle" @onclick="OpenFilters">
+        ☰ Filters
+    </button>
+
+    <div class="market">
+
+        <!-- Desktop Sidebar -->
+        <aside class="market-side">
+            <h3>Categories</h3>
+
+            <div class="category-list">
+                @foreach(var category in Categories){
+                   <label>
+                        <input type="checkbox"
+                            checked="@SelectedCategories.Contains(category.Id)"
+                            @onchange="(e) => ToggleCategory(category.Id)" />
+
+                        @category.Name
+                        (@GetCategoryCount(category.Id))
+                    </label>
+                }  
+            </div>
+
+            <div class="price-filter">
+                <label>
+                    Maximum Price: <strong>₦@MaxPrice</strong>
+                </label>
+
+                <input type="range"
+                    min="0"
+                    max="500000"
+                    step="1000"
+                    value="@MaxPrice"
+                    @oninput="UpdatePrice" />
+            </div>
+        </aside>
+
+        <!-- Products -->
+        <section class="market-main">
+            @if (loading)
+            {
+                @for (int i = 0; i < 12; i++)
+                {
+                    <Loading Text="Loading marketplace items..." />
+                }
+            }
+            else
+            {
+                @foreach (var item in items)
+                {
+                    <ItemComponent @key="item.Id" Item="item" />
+                }
+            }
+        </section>
+
+    </div>
+</div>
+
+@if (ShowFilters)
+{
+    <div class="filter-overlay" @onclick="CloseFilters">
+
+        <div class="filter-modal" @onclick:stopPropagation="true">
+
+            <button class="close-btn" @onclick="CloseFilters">
+                ✕
+            </button>
+
+            <h3>Categories</h3>
+
+            <div class="category-list">
+                @foreach(var category in Categories){
+                    <label>
+                        <input type="checkbox"
+                            checked="@SelectedCategories.Contains(category.Id)"
+                            @onchange="(e) => ToggleCategory(category.Id)" />
+
+                        @category.Name
+                        (@GetCategoryCount(category.Id))
+                    </label>
+                }  
+            </div>
+
+            <div class="price-filter">
+                <label>
+                    Maximum Price: <strong>₦@MaxPrice</strong>
+                </label>
+
+                <input type="range"
+                    min="0"
+                    max="500000"
+                    step="1000"
+                    value="@MaxPrice"
+                    @oninput="UpdatePrice" />
+            </div>
+
+        </div>
+
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    private string? Search { get; set; } = string.Empty;
+
+    [SupplyParameterFromQuery]
+    public int? Category { get; set; }
+
+    private HashSet<int> SelectedCategories = new();
+
+    private int MaxPrice = 50000;
+
+    private bool ShowFilters = false;
+
+    private bool loading = true;
+
+    private List<Item> Items = [];
+    private List<Item> items = [];
+    private List<Category> Categories = [];
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Items = ItemService.GetItems();
+        Categories = CategoryService.GetCategories();
+
+        if (Category is not null)
+        {
+            SelectedCategories.Add(Category.Value);
+        }
+        
+       await FilterItems(Search);
+    }
+
+    private async Task FilterItems(string? search)
+    {
+        loading = true;
+
+        IEnumerable<Item> query = Items;
+
+        // Search filter
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(item =>
+                item.Title.Contains(
+                    search,
+                    StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Category filter
+        if (SelectedCategories.Any())
+        {
+            query = query.Where(item =>
+                SelectedCategories.Contains(item.CategoryId));
+        }
+
+        // Price filter
+        query = query.Where(item =>
+            item.Price <= MaxPrice);
+
+        items = query.ToList();
+
+        loading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OpenFilters()
+    {
+        ShowFilters = true;
+    }
+
+    private void CloseFilters()
+    {
+        ShowFilters = false;
+    }
+
+    private async Task ToggleCategory(int categoryId)
+    {
+        if (SelectedCategories.Contains(categoryId))
+        {
+            SelectedCategories.Remove(categoryId);
+        }
+        else
+        {
+            SelectedCategories.Add(categoryId);
+        }
+
+        await FilterItems(Search);
+    }
+
+    private async Task UpdatePrice(ChangeEventArgs e)
+    {
+        MaxPrice = int.Parse(e.Value?.ToString() ?? "50000");
+
+        await FilterItems(Search);
+    }
+
+    private int GetCategoryCount(int categoryId)
+    {
+        return Items.Count(i => i.CategoryId == categoryId);
+    }
+}
