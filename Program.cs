@@ -1,3 +1,5 @@
+using Campus_Cart_Student_Marketplace.Services;
+
 using Campus_Cart_Student_Marketplace.Components;
 
 var builder = WebApplication.CreateBuilder(args);

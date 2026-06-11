@@ -50,14 +50,14 @@ namespace Campus_Cart_Student_Marketplace.Services
         }
 
         public void UpdateQuantity(int cartItemId, int quantity)
+{
+        var item = _mockCart.FirstOrDefault(c => c.Id == cartItemId);
+        if (item != null && quantity > 0)
         {
-            var item = _mockCart.FirstOrDefault(c => c.Id == cartItemId);
-            if (item != null && quantity > 0)
-            {
-                item.Quantity = quantity;
-                NotifyCartChanged();
-            }
-        }
+            item.Quantity = quantity;
+            OnCartChanged?.Invoke();
+    }
+}
 
         public decimal GetTotal(string userId)
         {
