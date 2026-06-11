@@ -1,6 +1,6 @@
 using System;
 
-namespace CampusCart.Models
+namespace Campus_Cart_Student_Marketplace.Models
 {
     public class CartItem
     {

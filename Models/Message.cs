@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace CampusCart.Models
+namespace Campus_Cart_Student_Marketplace.Models
 {
     public class Message
     {
