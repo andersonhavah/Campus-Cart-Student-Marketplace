@@ -14,6 +14,7 @@ builder.Services.AddScoped<MessageService>();
 builder.Services.AddSingleton<ItemService>();
 builder.Services.AddSingleton<CategoryService>();
 
+// ... (The rest of Anderson's identity and DB service setups remain below)
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
