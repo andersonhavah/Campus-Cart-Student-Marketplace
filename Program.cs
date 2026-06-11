@@ -6,7 +6,9 @@ using Campus_Cart_Student_Marketplace.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 2. REGISTER YOUR DELIVERABLES FOR DEPENDENCY INJECTION:
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddSingleton<ItemService>();

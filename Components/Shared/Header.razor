@@ -1,4 +1,4 @@
-@rendermode InteractiveServer
+@inject NavigationManager Nav
 
 <header class="header">
 
@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <button class="icon-btn">
+        <button class="icon-btn" @onclick="NavigateToCart">
             <img src="/img/cart-icon.webp" alt="Cart" />
         </button>
 
@@ -99,4 +99,8 @@
         ShowMobileMenu = false;
     }
 
+    private void NavigateToCart()
+    {
+        Nav.NavigateTo($"/cart");
+    }
 }

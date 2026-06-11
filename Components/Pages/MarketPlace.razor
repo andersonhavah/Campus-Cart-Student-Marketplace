@@ -3,11 +3,11 @@
 @inject NavigationManager Nav
 @rendermode InteractiveServer
 @using Campus_Cart_Student_Marketplace.Components.Shared
-@inject ItemService ItemService
-@inject CategoryService CategoryService
-@using CampusCart.Models
+@inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
+@inject Campus_Cart_Student_Marketplace.Services.CategoryService CategoryService
+@using Campus_Cart_Student_Marketplace.Models
 
-<PageTitle>MarketPlace</PageTitle>
+<PageTitle>Campus Cart - MarketPlace</PageTitle>
 
 <div class="main">
 
@@ -104,7 +104,7 @@
 
 @code {
     [SupplyParameterFromQuery]
-    private string? Search { get; set; } = string.Empty;
+    public string? Search { get; set; } = string.Empty;
 
     [SupplyParameterFromQuery]
     public int? Category { get; set; }
@@ -123,8 +123,21 @@
     private Campus_Cart_Student_Marketplace.Models.Category selectedCategory;
     protected override async Task OnParametersSetAsync()
     {
+        loading = true;
+
+        // Load from services (single source of truth)
         Items = ItemService.GetItems();
         Categories = CategoryService.GetCategories();
+
+        loading = false;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = true;
+
+        // Sync URL category → selected filters
+        SelectedCategories.Clear();
 
         if (Category is not null)
         {
@@ -140,16 +153,13 @@
 
         IEnumerable<Item> query = Items;
 
-        // Search filter
+        // Use ItemService logic (centralized search behavior)
         if (!string.IsNullOrWhiteSpace(search))
         {
-            query = query.Where(item =>
-                item.Title.Contains(
-                    search,
-                    StringComparison.OrdinalIgnoreCase));
+            query = ItemService.SearchItems(search);
         }
 
-        // Category filter
+        // Category filter (still local UI state)
         if (SelectedCategories.Any())
         {
             query = query.Where(item =>
@@ -193,7 +203,10 @@
 
     private async Task UpdatePrice(ChangeEventArgs e)
     {
-        MaxPrice = int.Parse(e.Value?.ToString() ?? "50000");
+        if (int.TryParse(e.Value?.ToString(), out int value))
+        {
+            MaxPrice = value;
+        }
 
         await FilterItems(Search);
     }
