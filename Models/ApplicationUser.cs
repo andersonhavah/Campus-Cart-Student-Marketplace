@@ -6,10 +6,9 @@ namespace Campus_Cart_Student_Marketplace.Models
     // Inherits directly from ASP.NET Core Identity
     public class ApplicationUser : IdentityUser
     {
-        // Custom student profile extensions
         public string FullName { get; set; } = string.Empty;
-
-        // Navigation tracking for seller property linkages
+        
+        // One user can have many marketplace listings
         public List<Item> Listings { get; set; } = new();
     }
 }

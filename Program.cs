@@ -1,18 +1,24 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-// 1. ADD THIS LINE AT THE TOP TO BRIDGE THE NAMESPACE:
-using Campus_Cart_Student_Marketplace.Services;
+using Campus_Cart_Student_Marketplace.Services; 
 using Campus_Cart_Student_Marketplace.Components;
+
+// 🌟 ADD THIS EXACT LINE TO POINT TO THE ROOT APP COMPONENT:
+using Campus_Cart_Student_Marketplace; 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add standard Blazor components services
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// 🌟 ADD THIS EXACT LINE TO SECURE FORMS AND FIX THE RUNTIME CRASH:
+builder.Services.AddAntiforgery();
+
+// Your custom workspace scoped services
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<MessageService>();
-builder.Services.AddSingleton<ItemService>();
-builder.Services.AddSingleton<CategoryService>();
+builder.Services.AddScoped<ItemService>();
 
 // ... (The rest of Anderson's identity and DB service setups remain below)
 var app = builder.Build();
