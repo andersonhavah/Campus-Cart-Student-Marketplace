@@ -20,6 +20,7 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<ItemService>();
 
+// ... (The rest of Anderson's identity and DB service setups remain below)
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

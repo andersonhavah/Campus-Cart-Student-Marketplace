@@ -8,8 +8,6 @@ namespace Campus_Cart_Student_Marketplace.Services
     public class CartService
     {
         private readonly List<CartItem> _mockCart = new();
-
-        // Event to notify UI components (like a layout badge) to re-render when items change
         public event Action? OnCartChanged;
 
         public List<CartItem> GetCartItems(string userId)
@@ -36,7 +34,7 @@ namespace Campus_Cart_Student_Marketplace.Services
                     Quantity = 1
                 });
             }
-            NotifyCartChanged();
+            OnCartChanged?.Invoke();
         }
 
         public void RemoveFromCart(int cartItemId)
@@ -64,7 +62,5 @@ namespace Campus_Cart_Student_Marketplace.Services
             return _mockCart.Where(c => c.ApplicationUserId == userId)
                              .Sum(c => (c.Item?.Price ?? 0) * c.Quantity);
         }
-
-        private void NotifyCartChanged() => OnCartChanged?.Invoke();
     }
 }

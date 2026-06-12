@@ -1,17 +1,21 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Campus_Cart_Student_Marketplace.Models
 {
     public class CartItem
     {
+        [Key]
         public int Id { get; set; }
 
-        // Links the cart item to a specific logged-in user
+        [Required]
         public string ApplicationUserId { get; set; } = string.Empty;
 
+        [Required]
         public int ItemId { get; set; }
 
-        // Navigation property to Nico's core Item model
+        [ForeignKey("ItemId")]
         public Item? Item { get; set; }
 
         public int Quantity { get; set; } = 1;
