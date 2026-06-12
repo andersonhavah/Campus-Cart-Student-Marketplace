@@ -1,0 +1,52 @@
+@page "/listings/delete/{Id:int}"
+@inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
+@inject NavigationManager Nav
+
+<PageTitle>Delete Listing</PageTitle>
+
+<div class="confirm-page">
+
+    <div class="confirm-card">
+
+        <h1>Delete Listing</h1>
+
+        <p>
+            Are you sure you want to delete this listing?
+        </p>
+
+        <div class="actions">
+
+            <button class="danger-btn" @onclick="DeleteListings">
+                Delete Listing
+            </button>
+
+            <button class="secondary-btn" @onclick="NavigateToDashboard">
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+
+    private void DeleteListings()
+    {
+        ItemService.DeleteItem(Id);
+        Nav.NavigateTo($"/dashboard");
+    }
+
+    private void NavigateToDashboard()
+    {
+        Nav.NavigateTo($"/dashboard");
+    }
+
+
+
+}

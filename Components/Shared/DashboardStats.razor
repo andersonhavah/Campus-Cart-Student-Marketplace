@@ -1,0 +1,31 @@
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <h3>@ListingCount</h3>
+        <p>Listings</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>@CartCount</h3>
+        <p>Cart Items</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>@MessageCount</h3>
+        <p>Messages</p>
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int ListingCount { get; set; }
+
+    [Parameter]
+    public int CartCount { get; set; }
+
+    [Parameter]
+    public int MessageCount { get; set; }
+
+}

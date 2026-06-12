@@ -8,8 +8,13 @@ namespace Campus_Cart_Student_Marketplace.Models
     {
         // Custom student profile extensions
         public string FullName { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+
+        public string Address {get; set;} = string.Empty;
+
+        public bool Seller {get; set;} = false;
 
         // Navigation tracking for seller property linkages
-        public List<Item> Listings { get; set; } = new();
+        public List<int> Listings { get; set; } = new();
     }
 }

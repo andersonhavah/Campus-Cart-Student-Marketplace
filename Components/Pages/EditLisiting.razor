@@ -1,0 +1,67 @@
+@page "/listings/edit/{Id:int}"
+@using Campus_Cart_Student_Marketplace.Models
+@using Campus_Cart_Student_Marketplace.Services
+@inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
+@inject NavigationManager Nav
+
+<PageTitle>Edit Listing</PageTitle>
+
+<div class="form-page">
+
+    <div class="form-card">
+
+        <h1>Edit Listing</h1>
+
+        <EditForm Model="Item" @onclick="EditListing">
+
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label>Title</label>
+                <InputText @bind-Value="Item.Title" />
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <InputTextArea @bind-Value="Item.Description" />
+            </div>
+
+            <div class="form-group">
+                <label>Price</label>
+                <InputNumber @bind-Value="Item.Price" />
+            </div>
+
+            <div class="form-group">
+                <label>Condition</label>
+                <InputText @bind-Value="Item.Condition" />
+            </div>
+
+            <button type="submit" class="primary-btn">
+                Save Changes
+            </button>
+
+        </EditForm>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private Item Item = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Item = ItemService.GetItemById(Id);
+    }
+
+    private void EditListing()
+    {
+        ItemService.UpdateItem(Item);
+        Nav.NavigateTo($"/dashboard");
+    }
+
+}

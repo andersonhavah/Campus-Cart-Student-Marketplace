@@ -13,6 +13,7 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddSingleton<ItemService>();
 builder.Services.AddSingleton<CategoryService>();
+builder.Services.AddSingleton<ApplicationUserService>();
 
 var app = builder.Build();
 
