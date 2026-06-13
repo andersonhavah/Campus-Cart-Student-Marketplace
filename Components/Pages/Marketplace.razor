@@ -1,0 +1,47 @@
+@page "/marketplace"
+
+@using CampusCart.Models
+@using CampusCart.Services
+
+@inject ItemService ItemService
+
+<h3>Marketplace</h3>
+
+@if (!Items.Any())
+{
+    <p>No items available.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Items)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card p-3">
+
+                    <h5>@item.Title</h5>
+
+                    <p>@item.Description</p>
+
+                    <p>
+                        <strong>KES @item.Price</strong>
+                    </p>
+
+                    <p>@item.Category</p>
+
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+
+    private List<Item> Items = new();
+
+    protected override void OnInitialized()
+    {
+        Items = ItemService.GetAllItems();
+    }
+
+}

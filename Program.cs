@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Campus_Cart_Student_Marketplace.Services; 
 using Campus_Cart_Student_Marketplace.Components;
+using CampusCart.Services;
+
 
 // 🌟 ADD THIS EXACT LINE TO POINT TO THE ROOT APP COMPONENT:
 using Campus_Cart_Student_Marketplace; 
