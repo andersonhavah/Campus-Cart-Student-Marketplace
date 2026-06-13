@@ -1,16 +1,18 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CampusCart.Models
+namespace Campus_Cart_Student_Marketplace.Models
 {
     public class Message
     {
+        [Key]
         public int Id { get; set; }
 
         [Required]
         public int ItemId { get; set; }
 
-        // Navigation property so the message knows which product is being discussed
+        [ForeignKey("ItemId")]
         public Item? Item { get; set; }
 
         [Required]
@@ -20,7 +22,7 @@ namespace CampusCart.Models
         public string ReceiverUserId { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Please type a message before sending.")]
-        [StringLength(1000, ErrorMessage = "Messages cannot exceed 1000 characters.")]
+        [StringLength(1000)]
         public string Content { get; set; } = string.Empty;
 
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;

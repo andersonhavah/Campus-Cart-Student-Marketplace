@@ -1,0 +1,139 @@
+@page "/cart"
+@using Campus_Cart_Student_Marketplace.Models
+@using Campus_Cart_Student_Marketplace.Services
+@inject CartService CartService
+@inject NavigationManager NavigationManager
+
+<div class="container my-5">
+    <div class="d-flex align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="bi bi-cart3 text-primary me-2"></i> Your Active Cart</h2>
+        <span class="badge bg-secondary ms-3 fs-6">@cartItems.Sum(i => i.Quantity) Items</span>
+    </div>
+
+    @if (!cartItems.Any())
+    {
+        <div class="card border-0 shadow-sm text-center py-5 px-4 rounded-3 bg-white">
+            <div class="mb-3">
+                <i class="bi bi-cart-x text-muted" style="font-size: 4rem;"></i>
+            </div>
+            <h4 class="fw-bold text-secondary">Your cart feels a bit light!</h4>
+            <p class="text-muted mx-auto" style="max-width: 400px;">Explore affordable student deals on textbooks, electronics, and supplies listed directly by your peers.</p>
+            <button class="btn btn-primary px-4 py-2 mt-2 fw-bold shadow-sm" @onclick="NavigateToMarketplace">
+                Browse the Marketplace
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <div class="col-lg-8">
+                @foreach (var item in cartItems)
+                {
+                    <div class="card mb-3 shadow-sm border-0 rounded-3 position-relative bg-white overflow-hidden">
+                        <div class="card-body d-flex align-items-center p-3">
+                            <img src="@(string.IsNullOrEmpty(item.Item?.ImageUrl) ? "images/placeholder.png" : item.Item.ImageUrl)" 
+                                 alt="@item.Item?.Title" 
+                                 class="rounded-2 me-3" 
+                                 style="width: 90px; height: 90px; object-fit: cover;" />
+                            
+                            <div class="flex-grow-1">
+                                <span class="badge bg-light text-primary mb-1 small">@item.Item?.Category?.Name</span>
+                                <h5 class="fw-bold mb-1 text-dark">@item.Item?.Title</h5>
+                                <p class="text-muted small mb-0">Seller ID: @item.Item?.ApplicationUserId</p>
+                                <div class="text-primary fw-bold fs-5 mt-1">$@item.Item?.Price</div>
+                            </div>
+
+                            <div class="d-flex flex-column align-items-center me-4">
+                                <label class="form-label small text-muted mb-1">Qty</label>
+                                <input type="number" 
+                                       class="form-control text-center fw-bold border-2" 
+                                       style="width: 75px;" 
+                                       value="@item.Quantity" 
+                                       @onchange="@((ChangeEventArgs e) => HandleQuantityChange(item.Id, e.Value?.ToString()))" 
+                                       min="1" max="99" />
+                            </div>
+
+                            <div>
+                                <button class="btn btn-outline-danger btn-sm p-2 rounded-3 border-2" 
+                                        @onclick="() => RemoveFromCart(item.Id)"
+                                        title="Remove item from cart">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card p-4 shadow-sm border-0 rounded-3 bg-light position-sticky" style="top: 20px;">
+                    <h4 class="fw-bold text-dark mb-3">Order Summary</h4>
+                    <hr class="text-muted" />
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal Items</span>
+                        <span class="fw-semibold text-dark">@cartItems.Sum(i => i.Quantity)</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-4 fs-4 fw-bold text-dark">
+                        <span>Total Est:</span>
+                        <span class="text-success">$@CartService.GetTotal(currentUserId).ToString("N2")</span>
+                    </div>
+                    
+                    <div class="alert alert-warning border-0 shadow-sm rounded-3 py-3 small mb-4">
+                        <i class="bi bi-shield-fill-exclamation text-warning me-2 fs-5 align-middle"></i>
+                        <strong>Safe Exchange Notice:</strong> Campus Cart does not process digital financial transactions online. Please coordinate an open, public meet-up on campus to complete your exchange safely.
+                    </div>
+                    
+                    <button class="btn btn-success w-100 py-3 fw-bold shadow-sm rounded-3 uppercase" disabled>
+                        Confirm Handoff Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<CartItem> cartItems = new();
+    private string currentUserId = "mock-student-123"; // Bridge context node for Anderson's Auth environment
+
+    protected override void OnInitialized()
+    {
+        CartService.OnCartChanged += RefreshCartState;
+        RefreshCartState();
+    }
+
+    private void RefreshCartState()
+    {
+        cartItems = CartService.GetCartItems(currentUserId);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleQuantityChange(int cartItemId, string? rawValue)
+    {
+        if (int.TryParse(rawValue, out int updatedQty) && updatedQty > 0)
+        {
+            CartService.UpdateQuantity(cartItemId, updatedQty);
+        }
+        else
+        {
+            RefreshCartState(); // Force UI to reset invalid numeric adjustments
+        }
+    }
+
+    private void RemoveFromCart(int cartItemId)
+    {
+        CartService.RemoveFromCart(cartItemId);
+    }
+
+    private void NavigateToMarketplace()
+    {
+        NavigationManager.NavigateTo("/marketplace");
+    }
+
+    public void Dispose()
+    {
+        CartService.OnCartChanged -= RefreshCartState;
+    }
+}

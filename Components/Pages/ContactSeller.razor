@@ -1,0 +1,104 @@
+@page "/contact-seller/{ItemId:int}"
+@using Campus_Cart_Student_Marketplace.Models
+@using Campus_Cart_Student_Marketplace.Services
+@inject MessageService MessageService
+@inject ItemService ItemService
+@inject NavigationManager NavigationManager
+
+<div class="container my-5" style="max-width: 650px;">
+    <div class="card p-4 shadow-sm border-0 rounded-3 bg-white">
+        <div class="d-flex align-items-center mb-3">
+            <div class="bg-light-primary rounded-circle p-2 me-3">
+                <i class="bi bi-envelope-paper-fill text-primary fs-3"></i>
+            </div>
+            <div>
+                <h3 class="fw-bold mb-0 text-dark">Secure Seller Inquiry</h3>
+                <p class="text-muted small mb-0">Coordinate meetup locations or clarify structural product conditions safely.</p>
+            </div>
+        </div>
+        <hr class="text-muted mb-4" />
+
+        @if (targetItem == null)
+        {
+            <div class="alert alert-danger rounded-3">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Error: The requested listing target item record could not be fetched from the database.
+            </div>
+            <button class="btn btn-light w-100 rounded-3 fw-bold" @onclick="ReturnToCatalog">Return to Marketplace</button>
+        }
+        else
+        {
+            <div class="d-flex align-items-center p-3 mb-4 bg-light rounded-3 border">
+                <img src="@targetItem.ImageUrl" alt="" class="rounded-2 me-3 border" style="width: 60px; height: 60px; object-fit: cover;" />
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">@targetItem.Title</h6>
+                    <span class="text-success fw-bold small">$@targetItem.Price.ToString("N2")</span>
+                    <span class="text-muted small ms-2">| Seller Account ID: @targetItem.ApplicationUserId</span>
+                </div>
+            </div>
+
+            <EditForm Model="messageModel" OnValidSubmit="ExecuteMessageSubmission">
+                <DataAnnotationsValidator />
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Your Message Content</label>
+                    <InputTextArea class="form-control border-2 p-3 rounded-3" 
+                                   rows="5" 
+                                   placeholder="Hi! I am interested in your listing. Is it available for a safe swap near the campus library tomorrow afternoon?" 
+                                   @bind-Value="messageModel.Content" />
+                    <ValidationMessage For="@(() => messageModel.Content)" class="text-danger small mt-1 d-block" />
+                </div>
+
+                @if (displaySuccessPrompt)
+                {
+                    <div class="alert alert-success border-0 shadow-sm rounded-3 py-2 px-3 mb-3 d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill text-success fs-4 me-2"></i>
+                        <span>Inquiry transmitted successfully! The vendor can process this message block within their student profile dashboard.</span>
+                    </div>
+                }
+
+                <div class="d-flex gap-3 mt-4">
+                    <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow-sm rounded-3 flex-grow-1" disabled="@displaySuccessPrompt">
+                        <i class="bi bi-send-fill me-2"></i> Dispatch Message
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2 fw-bold rounded-3" @onclick="ReturnToCatalog">
+                        Cancel
+                    </button>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int ItemId { get; set; }
+    
+    private Item? targetItem;
+    private Message messageModel = new();
+    private bool displaySuccessPrompt = false;
+
+    protected override void OnInitialized()
+    {
+        targetItem = ItemService.GetItemById(ItemId);
+
+        if (targetItem != null)
+        {
+            messageModel.ItemId = ItemId;
+            messageModel.SenderUserId = "mock-buyer-555"; // Hardshake system integration mock placeholder
+            messageModel.ReceiverUserId = targetItem.ApplicationUserId; 
+        }
+    }
+
+    private void ExecuteMessageSubmission()
+    {
+        var outcome = MessageService.SendMessage(messageModel);
+        if (outcome)
+        {
+            displaySuccessPrompt = true;
+        }
+    }
+
+    private void ReturnToCatalog()
+    {
+        NavigationManager.NavigateTo("/marketplace");
+    }
+}
