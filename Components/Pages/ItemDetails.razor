@@ -152,7 +152,8 @@
 
     public void HandleContact()
     {    
-       Nav.NavigateTo($"/contact-seller/{Id}");
+       Console.WriteLine(Item.SellerId);
+       Nav.NavigateTo($"/contact-seller/{Id}/{Item.SellerId}");
     }
 
     public void ToCart()

@@ -37,7 +37,7 @@
             {
                 <tr>
 
-                    <td>@item.Title</td>
+                    <td @onclick="() => HandleSearch(item)">@item.Title</td>
 
                     <td>₦@item.Price</td>
 
@@ -70,6 +70,8 @@
 
 </div>
 
+<MessagesSection UserId="@User.Id" />
+
 @code {
 
     [Parameter]
@@ -98,6 +100,11 @@
     public void NavigateToCreateListing()
     {    
        Nav.NavigateTo($"/listings/create/?userid={Uri.EscapeDataString(User.Id.Trim())}");
+    }
+
+    public void HandleSearch(Item item)
+    {    
+       Nav.NavigateTo($"/item/{item.Id}");
     }
 
 }

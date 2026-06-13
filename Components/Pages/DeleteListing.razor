@@ -1,5 +1,7 @@
 @page "/listings/delete/{Id:int}"
+@using Campus_Cart_Student_Marketplace.Models
 @inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService  
 @inject NavigationManager Nav
 
 <PageTitle>Delete Listing</PageTitle>
@@ -35,18 +37,29 @@
     [Parameter]
     public int Id { get; set; }
 
+    private Item? Item = new(); 
+    private ApplicationUser? CurrentUser = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Item = ItemService.GetItemById(Id);
+        CurrentUser = ApplicationUserService.GetUser(Item.SellerId);
+
+    }
+
 
     private void DeleteListings()
     {
-        ItemService.DeleteItem(Id);
-        Nav.NavigateTo($"/dashboard");
+        var deleted = ItemService.DeleteItem(Id);
+        if (deleted) {
+            CurrentUser.Listings.Remove(Item.Id);
+            NavigateToDashboard();
+        }
+        
     }
 
     private void NavigateToDashboard()
     {
         Nav.NavigateTo($"/dashboard");
     }
-
-
-
 }

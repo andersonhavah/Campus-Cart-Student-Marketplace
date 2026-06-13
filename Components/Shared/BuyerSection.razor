@@ -1,3 +1,4 @@
+@using Campus_Cart_Student_Marketplace.Models
 <div class="dashboard-card">
 
     <h2>Become a Seller</h2>
@@ -24,3 +25,13 @@
     </p>
 
 </div>
+
+<MessagesSection UserRole="@UserRole" UserId="@User.Id" />
+
+@code {
+
+    [Parameter]
+    public ApplicationUser User { get; set; } = default!;
+    public string UserRole = "Buyer";
+
+}

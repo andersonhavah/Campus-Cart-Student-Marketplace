@@ -1,4 +1,7 @@
 @page "/listings/create"
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@inject IWebHostEnvironment Environment
 @using Campus_Cart_Student_Marketplace.Models
 @inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
 @inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService
@@ -33,8 +36,16 @@
             </div>
 
             <div class="form-group">
-                <label>Image URL</label>
-                <InputText @bind-Value="Item.ImageUrl" />
+                <label>Product Image</label>
+
+                <InputFile OnChange="UploadImage" />
+
+                @if (!string.IsNullOrEmpty(Item.ImageUrl))
+                {
+                    <img src="@Item.ImageUrl"
+                        alt="Preview"
+                        style="width:200px;height:200px;object-fit:cover;margin-top:10px;border-radius:8px;" />
+                }
             </div>
 
             <div class="form-group">
@@ -111,6 +122,38 @@
         ApplicationUserService.UpdateUser(User);
 
         Nav.NavigateTo("/dashboard");
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file == null)
+            return;
+
+        var fileName =
+            $"{Guid.NewGuid()}{Path.GetExtension(file.Name)}";
+
+        var folderPath = Path.Combine(
+            Environment.WebRootPath,
+            "imgs");
+
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+
+        var filePath = Path.Combine(
+            folderPath,
+            fileName);
+
+        await using FileStream stream =
+            new(filePath, FileMode.Create);
+
+        await file.OpenReadStream(10_000_000)
+            .CopyToAsync(stream);
+
+        Item.ImageUrl = $"/imgs/{fileName}";
     }
 
 }
