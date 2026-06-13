@@ -1,4 +1,6 @@
 using Campus_Cart_Student_Marketplace.Components;
+using CampusCart.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<ItemService>();
 
 var app = builder.Build();
 
