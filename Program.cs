@@ -9,10 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddScoped<CartService>();
-builder.Services.AddScoped<MessageService>();
+builder.Services.AddSingleton<CartService>();
+builder.Services.AddSingleton<MessageService>();
 builder.Services.AddSingleton<ItemService>();
 builder.Services.AddSingleton<CategoryService>();
+builder.Services.AddSingleton<ApplicationUserService>();
 
 var app = builder.Build();
 
@@ -25,6 +26,7 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseAntiforgery();
 

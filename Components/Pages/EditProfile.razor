@@ -1,0 +1,68 @@
+@page "/profile/edit/"
+@using Campus_Cart_Student_Marketplace.Models
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService  
+@inject NavigationManager Nav
+
+<PageTitle>Edit Profile</PageTitle>
+
+<div class="form-page">
+
+    <div class="form-card">
+
+        <h1>Edit Profile</h1>
+
+        <EditForm Model="User" @onclick="EditUserProfile">
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <InputText @bind-Value="User.FullName" />
+            </div>
+
+            <div class="form-group">
+                <label>Username</label>
+                <InputText @bind-Value="User.Username" />
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <InputText @bind-Value="User.Email" />
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <InputText @bind-Value="User.PhoneNumber" />
+            </div>
+
+            <div class="form-group">
+                <label>Address</label>
+                <InputTextArea @bind-Value="User.Address" />
+            </div>
+
+            <button type="submit" class="primary-btn">
+                Save Profile
+            </button>
+
+        </EditForm>
+
+    </div>
+
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? userid { get; set; } = string.Empty;
+
+    private ApplicationUser User = default!;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        User = ApplicationUserService.GetUser(userid);
+    }
+
+    private void EditUserProfile()
+    {
+        ApplicationUserService.UpdateUser(User);
+        Nav.NavigateTo($"/dashboard");
+    }
+}

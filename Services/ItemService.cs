@@ -79,5 +79,48 @@ namespace Campus_Cart_Student_Marketplace.Services
         {
             return Items.Where(i => i.CategoryId == categoryId).ToList();
         }
+
+        public int AddItem(Item item)
+        {
+            item.Id = Items.Any()
+                ? Items.Max(i => i.Id) + 1
+                : 1;
+
+            item.CreatedAt = DateTime.UtcNow;
+
+            Items.Add(item);
+            return item.Id;
+        }
+
+        public bool UpdateItem(Item updatedItem)
+        {
+            var existingItem = Items.FirstOrDefault(i => i.Id == updatedItem.Id);
+
+            if (existingItem == null)
+                return false;
+
+            existingItem.Title = updatedItem.Title;
+            existingItem.Description = updatedItem.Description;
+            existingItem.Price = updatedItem.Price;
+            existingItem.ImageUrl = updatedItem.ImageUrl;
+            existingItem.Condition = updatedItem.Condition;
+            existingItem.IsAvailable = updatedItem.IsAvailable;
+            existingItem.CategoryId = updatedItem.CategoryId;
+            existingItem.SellerId = updatedItem.SellerId;
+
+            return true;
+        }
+
+        public bool DeleteItem(int id)
+        {
+            var item = Items.FirstOrDefault(i => i.Id == id);
+
+            if (item == null)
+                return false;
+
+            Items.Remove(item);
+
+            return true;
+        }
     }
 }

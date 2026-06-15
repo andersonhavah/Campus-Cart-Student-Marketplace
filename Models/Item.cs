@@ -16,10 +16,11 @@ namespace Campus_Cart_Student_Marketplace.Models
         [StringLength(2000)]
         public string Description { get; set; } = string.Empty;
 
+        [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
-        public string ImageUrl { get; set; } = "/img/placeholder.webp";
+        public string ImageUrl { get; set; } = "/img/bellze.webp";
 
         public string Condition { get; set; } = "Used";
 
@@ -28,6 +29,7 @@ namespace Campus_Cart_Student_Marketplace.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Category Reference
+        [Required]
         public int CategoryId { get; set; }
 
         // Seller Reference

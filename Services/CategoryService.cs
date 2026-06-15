@@ -4,7 +4,6 @@ namespace Campus_Cart_Student_Marketplace.Services
 {
     public class CategoryService
     {
-
         private List<Category> Categories = new()
             {
                 new() { Id = 1, Name = "Furniture" },
@@ -36,6 +35,41 @@ namespace Campus_Cart_Student_Marketplace.Services
             return Categories.FirstOrDefault(c =>
                 c.Name.Contains(categoryName,
                     StringComparison.OrdinalIgnoreCase));
+        }
+
+        public void AddCategory(Category category)
+        {
+            category.Id = Categories.Any()
+                ? Categories.Max(c => c.Id) + 1
+                : 1;
+
+            Categories.Add(category);
+        }
+
+        public bool UpdateCategory(Category updatedCategory)
+        {
+            var existingCategory = Categories
+                .FirstOrDefault(c => c.Id == updatedCategory.Id);
+
+            if (existingCategory == null)
+                return false;
+
+            existingCategory.Name = updatedCategory.Name;
+
+            return true;
+        }
+
+        public bool DeleteCategory(int id)
+        {
+            var category = Categories
+                .FirstOrDefault(c => c.Id == id);
+
+            if (category == null)
+                return false;
+
+            Categories.Remove(category);
+
+            return true;
         }
     }
 }
