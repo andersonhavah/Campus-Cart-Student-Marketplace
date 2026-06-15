@@ -1,5 +1,7 @@
 @page "/contact-seller/{ItemId:int}"
-@inject Campus_Cart_Student_Marketplace.Services.MessageService MessageService
+@using Campus_Cart_Student_Marketplace.Models
+@inject Campus_Cart_Student_Marketplace.Services.MessageService MessageService 
+@inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
 @inject NavigationManager NavigationManager
 
 <div class="container my-5" style="max-width: 600px;">
@@ -37,15 +39,17 @@
 
 @code {
     [Parameter] public int ItemId { get; set; }
+    [Parameter] public string ReceiverId { get; set; } = string.Empty;
 
     private Campus_Cart_Student_Marketplace.Models.Message messageModel = new();
     private bool isSuccess = false;
 
     protected override void OnInitialized()
     {
+        var Item = ItemService.GetItemById(ItemId);
         messageModel.ItemId = ItemId;
-        messageModel.SenderUserId = "mock-buyer-555";
-        messageModel.ReceiverUserId = "mock-seller-999";
+        messageModel.SenderUserId = Item.SellerId;
+        messageModel.ReceiverUserId = Item.SellerId;
     }
 
     private void HandleSend()
@@ -60,6 +64,6 @@
 
     private void GoBack()
     {
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo($"/item/{ItemId}");
     }
 }

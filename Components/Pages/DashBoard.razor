@@ -2,6 +2,7 @@
 @using Campus_Cart_Student_Marketplace.Models
 @using Campus_Cart_Student_Marketplace.Components.Shared
 @inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService  
+@inject Campus_Cart_Student_Marketplace.Services.CartService CartService
 @inject Campus_Cart_Student_Marketplace.Services.MessageService MessageService
 
 
@@ -18,7 +19,7 @@
     <main class="dashboard-main">
         <DashboardStats
             ListingCount="CurrentUser.Listings.Count"
-            CartCount="3"
+            CartCount="@CartCount"
             MessageCount="@MessageCount" />
 
         @if(CurrentUser.Seller)
@@ -40,9 +41,12 @@
 
     private int MessageCount = 0;
 
+    private int CartCount = 0;
+
     protected override async Task OnInitializedAsync()
     {
         CurrentUser = ApplicationUserService.GetUsers()[0];
+        CartCount = CartService.GetCartItems(CurrentUser.Id).Count;
         CurrentUser.Seller = true;
         if (CurrentUser.Seller == true) {
             MessageCount = MessageService.GetUserInbox(CurrentUser.Id).Count;
