@@ -42,6 +42,10 @@
                 Save Profile
             </button>
 
+            <button class="secondary-btn" @onclick="NavigateToDashboard">
+                Cancel
+            </button>
+            
         </EditForm>
 
     </div>
@@ -63,6 +67,11 @@
     private void EditUserProfile()
     {
         ApplicationUserService.UpdateUser(User);
+        Nav.NavigateTo($"/dashboard");
+    }
+
+    private void NavigateToDashboard()
+    {
         Nav.NavigateTo($"/dashboard");
     }
 }

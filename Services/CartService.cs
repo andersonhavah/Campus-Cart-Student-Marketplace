@@ -52,5 +52,17 @@ namespace Campus_Cart_Student_Marketplace.Services
             return _mockCart.Where(c => c.ApplicationUserId == userId)
                              .Sum(c => (c.Item?.Price ?? 0) * c.Quantity);
         }
+
+        public bool UpdateQuanity(CartItem updatedItem)
+        {
+            var existingItem =  _mockCart.FirstOrDefault(i => i.Id == updatedItem.Id);
+
+            if (existingItem == null)
+                return false;
+
+            existingItem.Quantity = updatedItem.Quantity;
+
+            return true;
+        }
     }
 }

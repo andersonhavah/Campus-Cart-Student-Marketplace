@@ -79,6 +79,10 @@
                 Create Listing
             </button>
 
+            <button class="secondary-btn" @onclick="NavigateToDashboard">
+                Cancel
+            </button>
+
         </EditForm>
 
     </div>
@@ -154,6 +158,11 @@
             .CopyToAsync(stream);
 
         Item.ImageUrl = $"/imgs/{fileName}";
+    }
+
+    private void NavigateToDashboard()
+    {
+        Nav.NavigateTo($"/dashboard");
     }
 
 }

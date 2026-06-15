@@ -1,5 +1,8 @@
 @page "/cart"
+@using Campus_Cart_Student_Marketplace.Models
 @inject Campus_Cart_Student_Marketplace.Services.CartService CartService
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService 
+@inject NavigationManager Nav
 
 <div class="container my-5">
     <h2 class="mb-4"><i class="bi bi-cart3"></i> Your Campus Cart</h2>
@@ -29,7 +32,7 @@
                             <div class="d-flex align-items-center me-3">
                                 <input type="number" class="form-control text-center" style="width: 70px;"
                                        value="@item.Quantity"
-                                       @onchange="@((ChangeEventArgs e) => UpdateQty(item.Id, e.Value?.ToString()))" min="1" />
+                                       @onchange="@((ChangeEventArgs e) => UpdateQty(item, int.Parse(e.Value?.ToString())))" min="1" />
                             </div>
                             <div>
                                 <button class="btn btn-outline-danger btn-sm" @onclick="() => RemoveItem(item.Id)">
@@ -62,10 +65,13 @@
 
 @code {
     private List<Campus_Cart_Student_Marketplace.Models.CartItem> cartItems = new();
+    private ApplicationUser CurrentUser = new();
     private string currentUserId = "mock-student-123";
 
     protected override void OnInitialized()
     {
+        CurrentUser = ApplicationUserService.GetUsers()[0];
+        currentUserId = CurrentUser.Id;
         LoadCart();
     }
 
@@ -74,16 +80,14 @@
         cartItems = CartService.GetCartItems(currentUserId);
     }
 
-    private void UpdateQty(int cartItemId, string? val)
+    private void UpdateQty(CartItem cartItem, int qty)
     {
-        if (int.TryParse(val, out int qty))
-        {
-            // Optional basic safety integration testing check
-            if (qty > 0)
-            {
-                LoadCart();
-            }
+        cartItem.Quantity = qty;
+        var sent = CartService.UpdateQuanity(cartItem);
+        if (sent){
+            Nav.Refresh();
         }
+        
     }
 
     private void RemoveItem(int cartItemId)

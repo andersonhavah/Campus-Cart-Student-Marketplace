@@ -40,6 +40,10 @@
                 Save Changes
             </button>
 
+            <button class="secondary-btn" @onclick="NavigateToDashboard">
+                Cancel
+            </button>
+
         </EditForm>
 
     </div>
@@ -61,6 +65,11 @@
     private void EditListing()
     {
         ItemService.UpdateItem(Item);
+        Nav.NavigateTo($"/dashboard");
+    }
+
+    private void NavigateToDashboard()
+    {
         Nav.NavigateTo($"/dashboard");
     }
 
