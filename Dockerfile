@@ -2,14 +2,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
 
 WORKDIR /src
 
-COPY *.sln .
-COPY Campus-Cart-Student-Marketplace/*.csproj Campus-Cart-Student-Marketplace/
-
-RUN dotnet restore
-
 COPY . .
 
-WORKDIR /src/Campus-Cart-Student-Marketplace
+RUN dotnet restore
 
 RUN dotnet publish -c Release -o /app/publish
 
