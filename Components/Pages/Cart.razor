@@ -1,7 +1,12 @@
 @page "/cart"
+
 @using Campus_Cart_Student_Marketplace.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService 
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
 @inject Campus_Cart_Student_Marketplace.Services.CartService CartService
-@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService 
 @inject NavigationManager Nav
 
 <div class="container my-5">
@@ -68,11 +73,31 @@
     private ApplicationUser CurrentUser = new();
     private string currentUserId = "mock-student-123";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        CurrentUser = ApplicationUserService.GetUsers()[0];
+        var authState =
+            await AuthStateProvider
+                .GetAuthenticationStateAsync();
+
+        var CurrentUser =
+            await UserManager.GetUserAsync(
+                authState.User);
+        // TEMP ONLY (replace with real logged-in user later)
         currentUserId = CurrentUser.Id;
+
         LoadCart();
+    }
+
+    private async Task UpdateQty(CartItem cartItem, int qty)
+    {
+        cartItem.Quantity = qty;
+
+        var sent = await CartService.UpdateQuantity(cartItem);
+
+        if (sent)
+        {
+            Nav.NavigateTo(Nav.Uri, forceLoad: true);
+        }
     }
 
     private void LoadCart()
@@ -80,15 +105,7 @@
         cartItems = CartService.GetCartItems(currentUserId);
     }
 
-    private void UpdateQty(CartItem cartItem, int qty)
-    {
-        cartItem.Quantity = qty;
-        var sent = CartService.UpdateQuanity(cartItem);
-        if (sent){
-            Nav.Refresh();
-        }
-        
-    }
+
 
     private void RemoveItem(int cartItemId)
     {

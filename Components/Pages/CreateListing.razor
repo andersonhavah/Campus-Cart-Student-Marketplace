@@ -4,7 +4,7 @@
 @inject IWebHostEnvironment Environment
 @using Campus_Cart_Student_Marketplace.Models
 @inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
-@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService
 @inject NavigationManager Nav
 
 <PageTitle>Create Listing</PageTitle>
@@ -106,28 +106,25 @@
 
     protected override async Task OnInitializedAsync()
     {
-        User = ApplicationUserService.GetUser(userid);
+        User = await UserService.GetUser(userid);
+
+        if (User == null)
+        {
+            Nav.NavigateTo("/dashboard");
+        }
     }
 
-    private void CreateListings()
+    private async Task CreateListings()
     {
+        if (User == null)
+            return;
+
         Item.SellerId = User.Id;
 
-        int id = ItemService.AddItem(Item);
-
-        @* if (user == null)
-        {
-            return; // or handle error
-        } *@
-
-        User.Listings ??= new List<int>();
-        User.Listings.Add(id);
-
-        ApplicationUserService.UpdateUser(User);
+        int id = await ItemService.AddItem(Item);
 
         Nav.NavigateTo("/dashboard");
     }
-
     private async Task UploadImage(InputFileChangeEventArgs e)
     {
         var file = e.File;

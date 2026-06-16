@@ -1,0 +1,26 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+
+WORKDIR /src
+
+COPY *.sln .
+COPY Campus-Cart-Student-Marketplace/*.csproj Campus-Cart-Student-Marketplace/
+
+RUN dotnet restore
+
+COPY . .
+
+WORKDIR /src/Campus-Cart-Student-Marketplace
+
+RUN dotnet publish -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview
+
+WORKDIR /app
+
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:10000
+
+EXPOSE 10000
+
+ENTRYPOINT ["dotnet", "Campus-Cart-Student-Marketplace.dll"]

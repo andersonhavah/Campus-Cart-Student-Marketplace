@@ -1,9 +1,14 @@
 @page "/dashboard"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Campus_Cart_Student_Marketplace.Models
 @using Campus_Cart_Student_Marketplace.Components.Shared
-@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService  
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService  
 @inject Campus_Cart_Student_Marketplace.Services.CartService CartService
 @inject Campus_Cart_Student_Marketplace.Services.MessageService MessageService
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 
 
 <PageTitle>Dashboard</PageTitle>
@@ -45,16 +50,32 @@
 
     protected override async Task OnInitializedAsync()
     {
-        CurrentUser = ApplicationUserService.GetUsers()[0];
-        CartCount = CartService.GetCartItems(CurrentUser.Id).Count;
-        CurrentUser.Seller = true;
-        if (CurrentUser.Seller == true) {
-            MessageCount = MessageService.GetUserInbox(CurrentUser.Id).Count;
-        } else {
-            MessageCount = MessageService.GetSentMessages(CurrentUser.Id).Count;
+        var authState =
+            await AuthStateProvider.GetAuthenticationStateAsync();
+
+        Console.WriteLine(
+            $"Authenticated: {authState.User.Identity?.IsAuthenticated}");
+
+        var user =
+            await UserManager.GetUserAsync(authState.User);
+
+        foreach (var claim in authState.User.Claims)
+        {
+            Console.WriteLine($"{claim.Type} : {claim.Value}");
         }
+
+        Console.WriteLine(
+            $"User Found: {user != null}");
+
+        if (user == null)
+        {
+            Nav.NavigateTo("/login", true);
+            return;
+        }
+
+        CurrentUser = user;
     }
 
 
-   
+    
 }

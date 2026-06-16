@@ -1,72 +1,63 @@
 using Campus_Cart_Student_Marketplace.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Campus_Cart_Student_Marketplace.Services;
 
-public class ApplicationUserService 
+public class ApplicationUserService
 {
-    private readonly List<ApplicationUser> _users = new();
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public ApplicationUserService()
+    public ApplicationUserService(UserManager<ApplicationUser> userManager)
     {
-        _users.Add(new ApplicationUser
-        {
-            FullName = "Faith Oluwatise Idowu",
-            Username = "faithidowu",
-            Email = "faith@email.com",
-            PhoneNumber = "+2348000000000",
-            Address = "Kano, Nigeria",
-            Seller = true
-        });
-
-        _users.Add(new ApplicationUser
-        {
-            FullName = "Anderson Komi Havah",
-            Username = "anderson",
-            Email = "anderson@email.com",
-            PhoneNumber = "+2348000000001",
-            Address = "Abuja, Nigeria",
-            Seller = false
-        });
+        _userManager = userManager;
     }
 
-    public List<ApplicationUser> GetUsers()
+    // GET ALL USERS
+    public async Task<List<ApplicationUser>> GetUsers()
     {
-        return _users;
+        return await _userManager.Users.ToListAsync();
     }
 
-    public ApplicationUser? GetUser(string id)
+    // GET SINGLE USER
+    public async Task<ApplicationUser?> GetUser(string id)
     {
-        return _users.FirstOrDefault(u => u.Id == id);
+        return await _userManager.FindByIdAsync(id);
     }
 
-    public void AddUser(ApplicationUser user)
+    // CREATE USER
+    public async Task<bool> AddUser(ApplicationUser user, string password)
     {
-        _users.Add(user);
+        var result = await _userManager.CreateAsync(user, password);
+        return result.Succeeded;
     }
 
-    public void UpdateUser(ApplicationUser user)
+    // UPDATE USER
+    public async Task<bool> UpdateUser(ApplicationUser user)
     {
-        var existingUser = _users.FirstOrDefault(u => u.Id == user.Id);
+        var existing = await _userManager.FindByIdAsync(user.Id);
 
-        if (existingUser is null)
-            return;
+        if (existing == null)
+            return false;
 
-        existingUser.FullName = user.FullName;
-        existingUser.Username = user.Username;
-        existingUser.Email = user.Email;
-        existingUser.PhoneNumber = user.PhoneNumber;
-        existingUser.Address = user.Address;
-        existingUser.Seller = user.Seller;
-        existingUser.Listings = user.Listings;
+        existing.FullName = user.FullName;
+        existing.PhoneNumber = user.PhoneNumber;
+        existing.Address = user.Address;
+        existing.Seller = user.Seller;
+
+        var result = await _userManager.UpdateAsync(existing);
+        return result.Succeeded;
     }
 
-    public void DeleteUser(string id)
+    // DELETE USER
+    public async Task<bool> DeleteUser(string id)
     {
-        var user = _users.FirstOrDefault(u => u.Id == id);
+        var user = await _userManager.FindByIdAsync(id);
 
-        if (user is not null)
-        {
-            _users.Remove(user);
-        }
+        if (user == null)
+            return false;
+
+        var result = await _userManager.DeleteAsync(user);
+        return result.Succeeded;
     }
 }

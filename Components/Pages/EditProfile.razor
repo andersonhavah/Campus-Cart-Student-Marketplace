@@ -1,6 +1,6 @@
 @page "/profile/edit/"
 @using Campus_Cart_Student_Marketplace.Models
-@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService  
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService
 @inject NavigationManager Nav
 
 <PageTitle>Edit Profile</PageTitle>
@@ -11,7 +11,10 @@
 
         <h1>Edit Profile</h1>
 
-        <EditForm Model="User" @onclick="EditUserProfile">
+        <EditForm Model="User" OnValidSubmit="EditUserProfile">
+
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
             <div class="form-group">
                 <label>Full Name</label>
@@ -20,7 +23,7 @@
 
             <div class="form-group">
                 <label>Username</label>
-                <InputText @bind-Value="User.Username" />
+                <InputText @bind-Value="User.UserName" />
             </div>
 
             <div class="form-group">
@@ -42,10 +45,10 @@
                 Save Profile
             </button>
 
-            <button class="secondary-btn" @onclick="NavigateToDashboard">
+            <button type="button" class="secondary-btn" @onclick="NavigateToDashboard">
                 Cancel
             </button>
-            
+
         </EditForm>
 
     </div>
@@ -54,24 +57,26 @@
 
 @code {
     [SupplyParameterFromQuery]
-    public string? userid { get; set; } = string.Empty;
+    public string? userid { get; set; }
 
-    private ApplicationUser User = default!;
-
+    private ApplicationUser User = new();
 
     protected override async Task OnInitializedAsync()
     {
-        User = ApplicationUserService.GetUser(userid);
+        if (!string.IsNullOrEmpty(userid))
+        {
+            User = await UserService.GetUser(userid);
+        }
     }
 
-    private void EditUserProfile()
+    private async Task EditUserProfile()
     {
-        ApplicationUserService.UpdateUser(User);
-        Nav.NavigateTo($"/dashboard");
+        await UserService.UpdateUser(User);
+        Nav.NavigateTo("/dashboard");
     }
 
     private void NavigateToDashboard()
     {
-        Nav.NavigateTo($"/dashboard");
+        Nav.NavigateTo("/dashboard");
     }
 }

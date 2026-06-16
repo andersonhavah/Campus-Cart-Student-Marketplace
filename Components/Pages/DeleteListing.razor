@@ -1,7 +1,7 @@
 @page "/listings/delete/{Id:int}"
 @using Campus_Cart_Student_Marketplace.Models
 @inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
-@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService ApplicationUserService  
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService  
 @inject NavigationManager Nav
 
 <PageTitle>Delete Listing</PageTitle>
@@ -33,33 +33,34 @@
 </div>
 
 @code {
-
     [Parameter]
     public int Id { get; set; }
 
-    private Item? Item = new(); 
-    private ApplicationUser? CurrentUser = new();
+    private Item? Item;
+    private ApplicationUser? CurrentUser;
 
     protected override async Task OnInitializedAsync()
     {
         Item = ItemService.GetItemById(Id);
-        CurrentUser = ApplicationUserService.GetUser(Item.SellerId);
 
+        if (Item != null)
+        {
+            CurrentUser = await UserService.GetUser(Item.SellerId);
+        }
     }
 
-
-    private void DeleteListings()
+    private async Task DeleteListings()
     {
-        var deleted = ItemService.DeleteItem(Id);
-        if (deleted) {
-            CurrentUser.Listings.Remove(Item.Id);
-            NavigateToDashboard();
+        var deleted = await ItemService.DeleteItem(Id);
+
+        if (deleted)
+        {
+            Nav.NavigateTo("/dashboard");
         }
-        
     }
 
     private void NavigateToDashboard()
     {
-        Nav.NavigateTo($"/dashboard");
+        Nav.NavigateTo("/dashboard");
     }
 }

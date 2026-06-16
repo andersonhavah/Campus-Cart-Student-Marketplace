@@ -1,4 +1,6 @@
 @using Campus_Cart_Student_Marketplace.Models
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService
+@inject NavigationManager Nav
 <div class="dashboard-card">
 
     <h2>Become a Seller</h2>
@@ -33,5 +35,14 @@
     [Parameter]
     public ApplicationUser User { get; set; } = default!;
     public string UserRole = "Buyer";
+
+    private async Task SwitchToSeller()
+    {
+        User.Seller = true;
+        var result = await UserService.UpdateUser(User);
+        if (result){
+            Nav.Refresh();
+        }
+    }
 
 }

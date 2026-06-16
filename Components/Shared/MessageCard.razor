@@ -1,7 +1,6 @@
 @using Campus_Cart_Student_Marketplace.Models
 @using Campus_Cart_Student_Marketplace.Services
 @inject NavigationManager Nav
-
 @inject ApplicationUserService UserService
 @inject MessageService MessageService
 
@@ -10,20 +9,16 @@
     <div class="message-header">
 
         <div>
-
             <h4>@SenderName</h4>
 
             <small>
                 @Message.Timestamp.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")
             </small>
-
         </div>
 
         @if (!Message.IsRead)
         {
-            <span class="message-badge">
-                New
-            </span>
+            <span class="message-badge">New</span>
         }
 
     </div>
@@ -40,9 +35,8 @@
                     @onclick="MarkAsRead">
                 Mark Read
             </button>
-            
         }
-        |
+
         <button class="btn btn-danger btn-sm"
                 @onclick="DeleteMessage">
             Delete
@@ -57,32 +51,30 @@
     [Parameter]
     public Message Message { get; set; } = default!;
 
+    private ApplicationUser? sender;
     private string SenderName = "Unknown User";
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        var sender = UserService.GetUser(Message.SenderUserId);
+        sender = await UserService.GetUser(Message.SenderUserId);
 
-        if (sender is not null)
-        {
-            SenderName = sender.Username;
-        }
+        SenderName = sender?.UserName ?? "Unknown User";
     }
 
-    private void MarkAsRead()
+    private async Task MarkAsRead()
     {
-        MessageService.MarkAsRead(Message.Id);
+        await MessageService.MarkAsRead(Message.Id);
         Reload();
     }
 
-    private void DeleteMessage()
+    private async Task DeleteMessage()
     {
-        MessageService.DeleteMessage(Message.Id);
+        await MessageService.DeleteMessage(Message.Id);
         Reload();
     }
 
     private void Reload()
     {
-        Nav.Refresh(true);
+        Nav.NavigateTo(Nav.Uri, forceLoad: true);
     }
 }
