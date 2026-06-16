@@ -31,7 +31,7 @@ namespace Campus_Cart_Student_Marketplace.Services
             if (string.IsNullOrWhiteSpace(searchTerm))
                 return await GetItemsAsync();
 
-            searchTerm = searchTerm.Trim().ToLower();
+        public List<Item> GetAllItems() => _mockItems;
 
             return await _context.Item
                 .Where(i =>

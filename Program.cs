@@ -10,6 +10,9 @@ using Campus_Cart_Student_Marketplace.Data;
 using Campus_Cart_Student_Marketplace.Models;
 using Campus_Cart_Student_Marketplace.Controllers;
 
+// 🌟 ADD THIS EXACT LINE TO POINT TO THE ROOT APP COMPONENT:
+using Campus_Cart_Student_Marketplace; 
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("ApplicationDbContext") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContext' not found.")));
@@ -20,6 +23,11 @@ builder.Services.AddCascadingAuthenticationState();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// 🌟 ADD THIS EXACT LINE TO SECURE FORMS AND FIX THE RUNTIME CRASH:
+builder.Services.AddAntiforgery();
+
+// Your custom workspace scoped services
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<ItemService>();
@@ -38,6 +46,7 @@ builder.Services.AddScoped(sp =>
     };
 });
 
+// ... (The rest of Anderson's identity and DB service setups remain below)
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
