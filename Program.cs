@@ -25,7 +25,7 @@ builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ApplicationUserService>();
-builder.Services.AddControllers();
+
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped(sp =>
@@ -62,7 +62,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider
         .GetRequiredService<ApplicationDbContext>();
-
+    Directory.CreateDirectory("/app/data");
     db.Database.Migrate();
 }
 
@@ -73,7 +73,7 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllers();
 
-app.MapPost("/api/auth/register",
+app.MapPost("/api/register",
 async (
     HttpContext context,
     UserManager<ApplicationUser> userManager,

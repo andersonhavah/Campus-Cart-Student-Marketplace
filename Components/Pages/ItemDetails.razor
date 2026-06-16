@@ -156,9 +156,9 @@
        Nav.NavigateTo($"/contact-seller/{Id}/{Item.SellerId}");
     }
 
-    public void ToCart()
+    public async Task ToCart()
     {
-        CartService.AddToCart(Item, Item.SellerId);
+        await CartService.AddToCart(Item, Item.SellerId);
         Nav.NavigateTo($"/cart");
     }
     
