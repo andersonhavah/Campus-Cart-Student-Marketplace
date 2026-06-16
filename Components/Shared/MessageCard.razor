@@ -64,7 +64,6 @@
     private async Task MarkAsRead()
     {
         await MessageService.MarkAsRead(Message.Id);
-        Reload();
     }
 
     private async Task DeleteMessage()

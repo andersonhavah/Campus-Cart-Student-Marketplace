@@ -79,7 +79,7 @@ namespace Campus_Cart_Student_Marketplace.Migrations
                     Description = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ImageUrl = table.Column<string>(type: "TEXT", nullable: false),
-                    Condition = table.Column<string>(type: "TEXT", nullable: false),
+                    Condition = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     IsAvailable = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     CategoryId = table.Column<int>(type: "INTEGER", nullable: false),

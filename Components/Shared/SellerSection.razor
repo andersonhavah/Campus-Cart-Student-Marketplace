@@ -82,9 +82,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine(User.Listings.Count);
         foreach (int i in User.Listings)
         {
-            Items.Add(ItemService.GetItemById(i));
+            Items.Add(await ItemService.GetItemByIdAsync(i));
         }
     }
 
@@ -100,7 +101,7 @@
 
     public void NavigateToCreateListing()
     {    
-       Nav.NavigateTo($"/listings/create/?userid={Uri.EscapeDataString(User.Id.Trim())}");
+       Nav.NavigateTo($"/listings/create");
     }
 
     public void HandleSearch(Item item)

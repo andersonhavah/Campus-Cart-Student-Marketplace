@@ -44,6 +44,8 @@ public class ApplicationUserService
         existing.PhoneNumber = user.PhoneNumber;
         existing.Address = user.Address;
         existing.Seller = user.Seller;
+        existing.Listings = user.Listings;
+
 
         var result = await _userManager.UpdateAsync(existing);
         return result.Succeeded;

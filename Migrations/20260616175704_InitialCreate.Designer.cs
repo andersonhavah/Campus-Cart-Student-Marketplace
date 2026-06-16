@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Campus_Cart_Student_Marketplace.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260616052542_InitialCreate")]
+    [Migration("20260616175704_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -203,6 +203,7 @@ namespace Campus_Cart_Student_Marketplace.Migrations
 
                     b.Property<string>("Condition")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")

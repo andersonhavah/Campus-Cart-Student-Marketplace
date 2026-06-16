@@ -354,7 +354,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Items = ItemService.GetItems();
+        Items = await ItemService.GetItemsAsync();
         Categories = CategoryService.GetCategories();
     }
 

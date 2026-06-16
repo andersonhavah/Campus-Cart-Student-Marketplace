@@ -200,6 +200,7 @@ namespace Campus_Cart_Student_Marketplace.Migrations
 
                     b.Property<string>("Condition")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")

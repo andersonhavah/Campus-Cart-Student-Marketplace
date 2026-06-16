@@ -264,7 +264,13 @@ button:active,
     cursor: pointer;
 }
 
-.mobile-menu a {
+.mobile-menu button{
+    text-align: left;
+    background: #fff;
+    border: none;
+}
+
+.mobile-menu a, .mobile-menu button {
     padding: 1rem;
 
     text-decoration: none;
@@ -273,7 +279,7 @@ button:active,
     border-bottom: 1px solid #f3f3f3;
 }
 
-.mobile-menu a:hover {
+.mobile-menu a:hover, .mobile-menu button:hover {
     background: #f7f7f7;
 }
 
@@ -1115,7 +1121,7 @@ button:active,
 
 .dashboard-container{
     display:grid;
-    grid-template-columns:300px 1fr;
+    grid-template-columns: 25% 75%;
     gap:20px;
     padding:20px;
 }
@@ -1283,64 +1289,115 @@ th,td{
     border-radius:10px;
 }
 
+.message-count {
+    background: #0077B6;
+    color: white;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
 .actions{
     display:flex;
     gap:12px;
     margin-top:20px;
 }
 
-.message-card{
-    background:white;
-    border:1px solid #e5e7eb;
-    border-radius:12px;
-    padding:15px;
-    margin-bottom:10px;
-    position:relative;
+.message-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease-in-out;
 }
 
-.message-card.unread{
-    border-left:4px solid #0077B6;
+.message-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
-.message-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:8px;
+.message-card.unread {
+    border-left: 5px solid #0077B6;
+    background: #f8fcff;
 }
 
-.message-content{
-    margin:0;
-    color:#555;
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
 }
 
-.message-badge{
-    position:absolute;
-    top:12px;
-    right:12px;
-
-    background:#0077B6;
-    color:white;
-
-    padding:4px 8px;
-    border-radius:999px;
-
-    font-size:.75rem;
+.message-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
 }
 
-.message-count{
-    background:#0077B6;
-    color:white;
-
-    width:28px;
-    height:28px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:50%;
+.message-header small {
+    display: block;
+    margin-top: 3px;
+    color: #6b7280;
+    font-size: 0.78rem;
 }
+
+.message-content {
+    display: block;
+    color: #374151;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 8px 0 12px 0;
+    word-wrap: break-word;
+}
+
+.message-badge {
+    background: #0077B6;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.message-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.message-actions button {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.message-actions .btn-primary {
+    background: #0077B6;
+    color: white;
+}
+
+.message-actions .btn-primary:hover {
+    background: #005f8f;
+}
+
+.message-actions .btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.message-actions .btn-danger:hover {
+    background: #dc2626;
+}
+
+
 
 /* ==========================================
    AUTH PAGES

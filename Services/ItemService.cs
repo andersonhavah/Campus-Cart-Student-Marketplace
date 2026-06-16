@@ -13,78 +13,98 @@ namespace Campus_Cart_Student_Marketplace.Services
             _context = context;
         }
 
-        public List<Item> GetItems()
+        public async Task<List<Item>> GetItemsAsync()
         {
-            return _context.Item
-                .ToList();
+            return await _context.Item
+                .OrderByDescending(i => i.CreatedAt)
+                .ToListAsync();
         }
 
-        public Item? GetItemById(int id)
+        public async Task<Item?> GetItemByIdAsync(int id)
         {
-            return _context.Item
-                .FirstOrDefault(i => i.Id == id);
+            return await _context.Item
+                .FirstOrDefaultAsync(i => i.Id == id);
         }
 
-        public List<Item> SearchItems(string searchTerm)
+        public async Task<List<Item>> SearchItemsAsync(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
-                return GetItems();
+                return await GetItemsAsync();
 
-            searchTerm = searchTerm.ToLower();
+            searchTerm = searchTerm.Trim().ToLower();
 
-            return _context.Item
+            return await _context.Item
                 .Where(i =>
                     i.Title.ToLower().Contains(searchTerm) ||
                     i.Description.ToLower().Contains(searchTerm))
-                .ToList();
+                .OrderByDescending(i => i.CreatedAt)
+                .ToListAsync();
         }
 
-        public List<Item> GetItemsByCategory(int categoryId)
+        public async Task<List<Item>> GetItemsByCategoryAsync(int categoryId)
         {
-            return _context.Item
+            return await _context.Item
                 .Where(i => i.CategoryId == categoryId)
-                .ToList();
+                .OrderByDescending(i => i.CreatedAt)
+                .ToListAsync();
         }
 
-        public async Task<int> AddItem(Item item)
+        public async Task<List<Item>> GetItemsBySellerAsync(string sellerId)
+        {
+            return await _context.Item
+                .Where(i => i.SellerId == sellerId)
+                .OrderByDescending(i => i.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<int> AddItemAsync(Item item)
         {
             item.CreatedAt = DateTime.UtcNow;
 
-            _context.Item.Add(item);
+            await _context.Item.AddAsync(item);
             await _context.SaveChangesAsync();
 
             return item.Id;
         }
 
-        public async Task<bool> UpdateItem(Item updatedItem)
+        public async Task<bool> UpdateItemAsync(Item updatedItem)
         {
-            var existing = await _context.Item.FindAsync(updatedItem.Id);
+            var existingItem =
+                await _context.Item.FindAsync(updatedItem.Id);
 
-            if (existing == null) return false;
+            if (existingItem == null)
+                return false;
 
-            existing.Title = updatedItem.Title;
-            existing.Description = updatedItem.Description;
-            existing.Price = updatedItem.Price;
-            existing.ImageUrl = updatedItem.ImageUrl;
-            existing.Condition = updatedItem.Condition;
-            existing.IsAvailable = updatedItem.IsAvailable;
-            existing.CategoryId = updatedItem.CategoryId;
-            existing.SellerId = updatedItem.SellerId;
+            existingItem.Title = updatedItem.Title;
+            existingItem.Description = updatedItem.Description;
+            existingItem.Price = updatedItem.Price;
+            existingItem.ImageUrl = updatedItem.ImageUrl;
+            existingItem.Condition = updatedItem.Condition;
+            existingItem.IsAvailable = updatedItem.IsAvailable;
+            existingItem.CategoryId = updatedItem.CategoryId;
 
             await _context.SaveChangesAsync();
+
             return true;
         }
 
-        public async Task<bool> DeleteItem(int id)
+        public async Task<bool> DeleteItemAsync(int id)
         {
             var item = await _context.Item.FindAsync(id);
 
-            if (item == null) return false;
+            if (item == null)
+                return false;
 
             _context.Item.Remove(item);
+
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<int> CountItemsAsync()
+        {
+            return await _context.Item.CountAsync();
         }
     }
 }

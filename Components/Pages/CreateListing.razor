@@ -1,11 +1,17 @@
 @page "/listings/create"
 @using Microsoft.AspNetCore.Components.Forms
 @using System.IO
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @inject IWebHostEnvironment Environment
 @using Campus_Cart_Student_Marketplace.Models
 @inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
+
+@inject Campus_Cart_Student_Marketplace.Services.CategoryService CategoryService
 @inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService
 @inject NavigationManager Nav
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Create Listing</PageTitle>
 
@@ -106,24 +112,52 @@
 
     protected override async Task OnInitializedAsync()
     {
-        User = await UserService.GetUser(userid);
+        Categories = CategoryService.GetCategories();
+        var authState =
+            await AuthStateProvider.GetAuthenticationStateAsync();
 
-        if (User == null)
+        Console.WriteLine(
+            $"Authenticated: {authState.User.Identity?.IsAuthenticated}");
+
+        var user =
+            await UserManager.GetUserAsync(authState.User);
+
+
+        if (user == null)
         {
-            Nav.NavigateTo("/dashboard");
+            Nav.NavigateTo("/login", true);
+            return;
         }
+
+        User = user;
     }
+
 
     private async Task CreateListings()
     {
-        if (User == null)
-            return;
+        try
+        {
+            if (User == null)
+                return;
 
-        Item.SellerId = User.Id;
+            Item.SellerId = User.Id;
 
-        int id = await ItemService.AddItem(Item);
+            int id = await ItemService.AddItemAsync(Item);
 
-        Nav.NavigateTo("/dashboard");
+            if (User.Listings == null)
+                User.Listings = new List<int>();
+
+            if (!User.Listings.Contains(id))
+                User.Listings.Add(id);
+
+            await UserService.UpdateUser(User);
+
+            Nav.NavigateTo("/dashboard");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("CreateListings Error: " + ex);
+        }
     }
     private async Task UploadImage(InputFileChangeEventArgs e)
     {

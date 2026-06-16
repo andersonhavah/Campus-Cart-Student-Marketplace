@@ -1,8 +1,12 @@
 @page "/listings/delete/{Id:int}"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Campus_Cart_Student_Marketplace.Models
 @inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
 @inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService  
 @inject NavigationManager Nav
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Delete Listing</PageTitle>
 
@@ -37,21 +41,34 @@
     public int Id { get; set; }
 
     private Item? Item;
-    private ApplicationUser? CurrentUser;
+    private ApplicationUser? User;
 
     protected override async Task OnInitializedAsync()
     {
-        Item = ItemService.GetItemById(Id);
+        Item = await ItemService.GetItemByIdAsync(Id);
 
-        if (Item != null)
+        var authState =
+            await AuthStateProvider.GetAuthenticationStateAsync();
+
+        Console.WriteLine(
+            $"Authenticated: {authState.User.Identity?.IsAuthenticated}");
+
+        var user =
+            await UserManager.GetUserAsync(authState.User);
+
+
+        if (user == null)
         {
-            CurrentUser = await UserService.GetUser(Item.SellerId);
+            Nav.NavigateTo("/login", true);
+            return;
         }
+
+        User = user;
     }
 
     private async Task DeleteListings()
     {
-        var deleted = await ItemService.DeleteItem(Id);
+        var deleted = await ItemService.DeleteItemAsync(Id);
 
         if (deleted)
         {

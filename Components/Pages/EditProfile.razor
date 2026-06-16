@@ -1,6 +1,10 @@
 @page "/profile/edit/"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Campus_Cart_Student_Marketplace.Models
 @inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 
 <PageTitle>Edit Profile</PageTitle>
@@ -63,10 +67,23 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!string.IsNullOrEmpty(userid))
+        var authState =
+            await AuthStateProvider.GetAuthenticationStateAsync();
+
+        Console.WriteLine(
+            $"Authenticated: {authState.User.Identity?.IsAuthenticated}");
+
+        var user =
+            await UserManager.GetUserAsync(authState.User);
+
+
+        if (user == null)
         {
-            User = await UserService.GetUser(userid);
+            Nav.NavigateTo("/login", true);
+            return;
         }
+
+        User = user;
     }
 
     private async Task EditUserProfile()

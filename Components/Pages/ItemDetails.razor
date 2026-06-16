@@ -124,7 +124,7 @@
             }
             else
             {
-                @foreach(var I in ItemService.GetItemsByCategory(Item.CategoryId)){
+                @foreach(var I in Items){
                     <ItemComponent item=@I />    
                 }
             }
@@ -145,15 +145,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Item = ItemService.GetItemById(Id);
-        Items = ItemService.GetItemsByCategory(Item.CategoryId);
+        Item = await ItemService.GetItemByIdAsync(Id);
+        Items = await ItemService.GetItemsByCategoryAsync(Item.CategoryId);
         Categories = CategoryService.GetCategories();
     }
 
     public void HandleContact()
     {    
        Console.WriteLine(Item.SellerId);
-       Nav.NavigateTo($"/contact-seller/{Id}/{Item.SellerId}");
+       Nav.NavigateTo($"/contact-seller/{Id}");
     }
 
     public async Task ToCart()

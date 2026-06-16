@@ -11,7 +11,7 @@
         and other student items.
     </p>
 
-    <button class="primary-btn">
+    <button class="primary-btn" @onclick="SwitchToSeller">
         Become a Seller
     </button>
 
@@ -41,7 +41,7 @@
         User.Seller = true;
         var result = await UserService.UpdateUser(User);
         if (result){
-            Nav.Refresh();
+            Nav.Refresh(true);
         }
     }
 

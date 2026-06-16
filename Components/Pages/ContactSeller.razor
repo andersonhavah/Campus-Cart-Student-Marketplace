@@ -58,7 +58,7 @@
         var CurrentUser =
             await UserManager.GetUserAsync(
                 authState.User);
-        var item = ItemService.GetItemById(ItemId);
+        var item = await ItemService.GetItemByIdAsync(ItemId);
 
         if (item == null) return;
 

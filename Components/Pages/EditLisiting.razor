@@ -59,12 +59,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Item = ItemService.GetItemById(Id);
+        Item = await ItemService.GetItemByIdAsync(Id);
     }
 
-    private void EditListing()
+    private async Task EditListing()
     {
-        ItemService.UpdateItem(Item);
+        await ItemService.UpdateItemAsync(Item);
         Nav.NavigateTo($"/dashboard");
     }
 
