@@ -49,7 +49,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.MapStaticAssets();
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+app.UseStatusCodePagesWithReExecute("/not-found");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
