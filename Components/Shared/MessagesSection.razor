@@ -1,0 +1,53 @@
+@using Campus_Cart_Student_Marketplace.Models
+@inject Campus_Cart_Student_Marketplace.Services.MessageService MessageService
+
+<div class="dashboard-card">
+
+    <div class="section-header">
+
+        <h2>Messages</h2>
+
+        <span class="message-count">
+            @Messages.Count
+        </span>
+
+    </div>
+
+    @if(Messages.Count == 0)
+    {
+        <p>
+            No messages yet.
+        </p>
+    }
+    else
+    {
+        @foreach(var message in Messages)
+        {
+            <MessageCard
+                Message="message"/>
+        }
+    }
+
+</div>
+
+@code {
+
+    [Parameter]
+    public string UserId { get; set; } = "";
+
+    [Parameter]
+    public string UserRole { get; set; } = "Seller";
+
+    private List<Message> Messages = [];
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine(UserId);
+        if (UserRole == "Seller") {
+            Messages = MessageService.GetUserInbox(UserId);
+        } else {
+            Messages = MessageService.GetSentMessages(UserId);
+        }
+    }
+
+}

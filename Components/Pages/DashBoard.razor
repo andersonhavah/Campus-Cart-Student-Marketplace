@@ -1,0 +1,85 @@
+@page "/dashboard"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Campus_Cart_Student_Marketplace.Models
+@using Campus_Cart_Student_Marketplace.Components.Shared
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService  
+@inject Campus_Cart_Student_Marketplace.Services.CartService CartService
+@inject Campus_Cart_Student_Marketplace.Services.MessageService MessageService
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
+
+
+<PageTitle>Dashboard</PageTitle>
+
+<div class="dashboard-container">
+
+    <aside class="dashboard-sidebar">
+
+        <ProfileCard User="CurrentUser" />
+
+    </aside>
+
+    <main class="dashboard-main">
+        <DashboardStats
+            ListingCount="CurrentUser.Listings.Count"
+            CartCount="@CartCount"
+            MessageCount="@MessageCount" />
+
+        @if(CurrentUser.Seller)
+        {
+            <SellerSection User="CurrentUser"/>
+        }
+        else
+        {
+            <BuyerSection User="CurrentUser"/>
+        }
+
+    </main>
+
+</div>
+
+@code {
+
+    private ApplicationUser CurrentUser = new();
+
+    private int MessageCount = 0;
+
+    private int CartCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState =
+            await AuthStateProvider.GetAuthenticationStateAsync();
+
+        Console.WriteLine(
+            $"Authenticated: {authState.User.Identity?.IsAuthenticated}");
+
+        var user =
+            await UserManager.GetUserAsync(authState.User);
+
+        CartCount = CartService.GetCartItems(user.Id).Count;
+        MessageCount = MessageService.GetUserInbox(user.Id).Count;
+
+        foreach (var claim in authState.User.Claims)
+        {
+            Console.WriteLine($"{claim.Type} : {claim.Value}");
+        }
+
+        Console.WriteLine(
+            $"User Found: {user != null}");
+
+        if (user == null)
+        {
+            Nav.NavigateTo("/login", true);
+            return;
+        }
+
+        CurrentUser = user;
+
+    }
+
+
+    
+}

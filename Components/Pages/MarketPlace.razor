@@ -126,7 +126,7 @@
         loading = true;
 
         // Load from services (single source of truth)
-        Items = ItemService.GetItems();
+        Items = await ItemService.GetItemsAsync();
         Categories = CategoryService.GetCategories();
 
         loading = false;
@@ -156,7 +156,7 @@
         // Use ItemService logic (centralized search behavior)
         if (!string.IsNullOrWhiteSpace(search))
         {
-            query = ItemService.SearchItems(search);
+            query = await ItemService.SearchItemsAsync(search);
         }
 
         // Category filter (still local UI state)

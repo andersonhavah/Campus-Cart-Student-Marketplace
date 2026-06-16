@@ -350,7 +350,7 @@
     private List<Campus_Cart_Student_Marketplace.Models.Category> categories = new();
     protected override async Task OnInitializedAsync()
     {
-        Items = ItemService.GetAllItems();
+        Items = await ItemService.GetItemsAsync();
         Categories = CategoryService.GetCategories();
     }
 

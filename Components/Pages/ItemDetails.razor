@@ -122,12 +122,8 @@
             }
             else
             {
-                @foreach (var I in Items)
-                {
-                    if (I.CategoryId == item.CategoryId)
-                    {
-                        <ItemComponent @key="item.Id" item=@item />
-                    }
+                @foreach(var I in Items){
+                    <ItemComponent item=@I />    
                 }
             }
 
@@ -147,25 +143,20 @@
     private Campus_Cart_Student_Marketplace.Models.Category currentCategory;
     protected override async Task OnInitializedAsync()
     {
-        Items = ItemService.GetItems();
-        foreach (Item I in Items)
-        {
-            if (Id == I.Id)
-            {
-                item = I;
-            }
-        }
+        Item = await ItemService.GetItemByIdAsync(Id);
+        Items = await ItemService.GetItemsByCategoryAsync(Item.CategoryId);
         Categories = CategoryService.GetCategories();
     }
 
     public void HandleContact()
     {    
+       Console.WriteLine(Item.SellerId);
        Nav.NavigateTo($"/contact-seller/{Id}");
     }
 
-    public void ToCart()
+    public async Task ToCart()
     {
-        CartService.AddToCart(Item, Item.SellerId);
+        await CartService.AddToCart(Item, Item.SellerId);
         Nav.NavigateTo($"/cart");
     }
     

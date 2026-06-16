@@ -1,0 +1,48 @@
+@using Campus_Cart_Student_Marketplace.Models
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService
+@inject NavigationManager Nav
+<div class="dashboard-card">
+
+    <h2>Become a Seller</h2>
+
+    <p>
+        Start selling textbooks,
+        electronics, furniture,
+        and other student items.
+    </p>
+
+    <button class="primary-btn" @onclick="SwitchToSeller">
+        Become a Seller
+    </button>
+
+</div>
+
+<div class="dashboard-card">
+
+    <h2>Saved Items</h2>
+
+    <p>
+        Items you save for later
+        will appear here.
+    </p>
+
+</div>
+
+<MessagesSection UserRole="@UserRole" UserId="@User.Id" />
+
+@code {
+
+    [Parameter]
+    public ApplicationUser User { get; set; } = default!;
+    public string UserRole = "Buyer";
+
+    private async Task SwitchToSeller()
+    {
+        User.Seller = true;
+        var result = await UserService.UpdateUser(User);
+        if (result){
+            Nav.Refresh(true);
+        }
+    }
+
+}

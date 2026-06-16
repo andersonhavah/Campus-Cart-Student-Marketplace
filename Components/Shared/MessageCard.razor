@@ -1,0 +1,79 @@
+@using Campus_Cart_Student_Marketplace.Models
+@using Campus_Cart_Student_Marketplace.Services
+@inject NavigationManager Nav
+@inject ApplicationUserService UserService
+@inject MessageService MessageService
+
+<div class="message-card @(Message.IsRead ? "" : "unread")">
+
+    <div class="message-header">
+
+        <div>
+            <h4>@SenderName</h4>
+
+            <small>
+                @Message.Timestamp.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")
+            </small>
+        </div>
+
+        @if (!Message.IsRead)
+        {
+            <span class="message-badge">New</span>
+        }
+
+    </div>
+
+    <p class="message-content">
+        @Message.Content
+    </p>
+
+    <div class="message-actions">
+
+        @if (!Message.IsRead)
+        {
+            <button class="btn btn-primary btn-sm"
+                    @onclick="MarkAsRead">
+                Mark Read
+            </button>
+        }
+
+        <button class="btn btn-danger btn-sm"
+                @onclick="DeleteMessage">
+            Delete
+        </button>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public Message Message { get; set; } = default!;
+
+    private ApplicationUser? sender;
+    private string SenderName = "Unknown User";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        sender = await UserService.GetUser(Message.SenderUserId);
+
+        SenderName = sender?.UserName ?? "Unknown User";
+    }
+
+    private async Task MarkAsRead()
+    {
+        await MessageService.MarkAsRead(Message.Id);
+    }
+
+    private async Task DeleteMessage()
+    {
+        await MessageService.DeleteMessage(Message.Id);
+        Reload();
+    }
+
+    private void Reload()
+    {
+        Nav.NavigateTo(Nav.Uri, forceLoad: true);
+    }
+}

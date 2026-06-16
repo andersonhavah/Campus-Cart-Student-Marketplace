@@ -1,11 +1,18 @@
+@using Microsoft.AspNetCore.Identity
+@using Campus_Cart_Student_Marketplace.Models
+@inject HttpClient Http
 @inject NavigationManager Nav
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 <header class="header">
 
+    <!-- LEFT: LOGO + MOBILE MENU -->
     <div class="header__logo__menu">
-        <!-- Mobile Menu Button -->
-        <button class="mobile-menu-btn"
-                @onclick="ToggleMenu">
+
+        <button class="mobile-menu-btn" @onclick="ToggleMenu">
             ☰
         </button>
 
@@ -14,71 +21,98 @@
         </NavLink>
     </div>
 
+    <!-- CENTER: SEARCH -->
     <div class="header__search">
         <SearchBar />
     </div>
-        
 
+    <!-- RIGHT: AUTH + CART -->
     <div class="desktop-actions">
 
-        <div class="user-menu">
-            <button class="icon-btn user-btn" @onclick="ToggleMenu">
-                <img src="/img/user-icon.webp" alt="User" />
-                <span>Account</span>
-                <span class="arrow">▼</span>
+        @if (IsLoggedIn)
+        {
+            <!-- USER MENU -->
+            <div class="user-menu">
+
+                <button class="icon-btn user-btn" @onclick="ToggleMenu">
+                    <img src="/img/user-icon.webp" alt="User" />
+                    <span>@UserName</span>
+                    <span class="arrow">▼</span>
+                </button>
+
+                @if (ShowUserMenu)
+                {
+                    <div class="dropdown-menu">
+
+                        <NavLink href="/dashboard">My Profile</NavLink>
+                        <NavLink href="/listings/create">Sell Item</NavLink>
+
+                        <hr />
+
+                        <button @onclick="Logout">
+                            Logout
+                        </button>
+
+                    </div>
+                }
+
+            </div>
+
+            <!-- CART -->
+            <button class="icon-btn" @onclick="NavigateToCart">
+                <img src="/img/cart-icon.webp" alt="Cart" />
+            </button>
+        }
+        else
+        {
+            <!-- NOT LOGGED IN -->
+            <button class="btn btn-outline-primary me-2"
+                    @onclick="GoToLogin">
+                Login
             </button>
 
-            <div class="dropdown-menu">
-                <NavLink href="/profile">My Profile</NavLink>
-                <NavLink href="/my-listings">My Listings</NavLink>
-                <hr />
-                <NavLink href="/logout">Logout</NavLink>
-            </div>
-        </div>
-
-        <button class="icon-btn" @onclick="NavigateToCart">
-            <img src="/img/cart-icon.webp" alt="Cart" />
-        </button>
+            <button class="btn btn-primary"
+                    @onclick="GoToRegister">
+                Register
+            </button>
+        }
 
     </div>
 
-    
-
 </header>
 
+<!-- MOBILE MENU -->
 @if (ShowMobileMenu)
 {
     <div class="mobile-menu-overlay" @onclick="CloseMenu">
 
-        <div class="mobile-menu"
-             @onclick:stopPropagation="true">
+        <div class="mobile-menu" @onclick:stopPropagation="true">
 
             <div class="mobile-menu-header">
                 <h3>Menu</h3>
 
-                <button class="close-btn"
-                        @onclick="CloseMenu">
+                <button class="close-btn" @onclick="CloseMenu">
                     ✕
                 </button>
             </div>
 
-            <NavLink href="/profile">Profile</NavLink>
+            <NavLink href="/">Home</NavLink>
 
-            <NavLink href="/my-listings">
-                My Listings
-            </NavLink>
+            @if (IsLoggedIn)
+            {
+                <NavLink href="/dashboard">Profile</NavLink>
+                <NavLink href="/cart">Cart</NavLink>
+                <NavLink href="/listings/create">Sell Item</NavLink>
 
-            <NavLink href="/cart">
-                Cart
-            </NavLink>
-
-            <NavLink href="/sell">
-                Sell Item
-            </NavLink>
-
-            <NavLink href="/logout">
-                Logout
-            </NavLink>
+                <button @onclick="Logout">
+                    Logout
+                </button>
+            }
+            else
+            {
+                <NavLink href="/login">Login</NavLink>
+                <NavLink href="/register">Register</NavLink>
+            }
 
         </div>
 
@@ -88,6 +122,24 @@
 @code {
 
     private bool ShowMobileMenu;
+    private bool ShowUserMenu = true;
+
+    private bool IsLoggedIn;
+    private string UserName = "User";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        IsLoggedIn = user.Identity?.IsAuthenticated ?? false;
+
+        if (IsLoggedIn)
+        {
+            var appUser = await UserManager.GetUserAsync(user);
+            UserName = appUser?.UserName ?? "User";
+        }
+    }
 
     private void ToggleMenu()
     {
@@ -97,10 +149,33 @@
     private void CloseMenu()
     {
         ShowMobileMenu = false;
+        ShowUserMenu = false;
+    }
+
+    private void ToggleUserMenu()
+    {
+        ShowUserMenu = !ShowUserMenu;
     }
 
     private void NavigateToCart()
     {
-        Nav.NavigateTo($"/cart");
+        Nav.NavigateTo("/cart");
+    }
+
+    private void GoToLogin()
+    {
+        Nav.NavigateTo("/login");
+    }
+
+    private void GoToRegister()
+    {
+        Nav.NavigateTo("/register");
+    }
+
+    private async Task Logout()
+    {
+        await Http.PostAsync("api/logout", null);
+
+        Nav.NavigateTo("/login", forceLoad: true);
     }
 }

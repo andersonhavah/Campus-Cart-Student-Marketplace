@@ -1,0 +1,112 @@
+@using Campus_Cart_Student_Marketplace.Models
+@inject NavigationManager Nav
+@inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService
+<div class="dashboard-card">
+
+    <div class="section-header">
+
+        <h2>Seller Dashboard</h2>
+
+        <button class="primary-btn" @onclick="NavigateToCreateListing">
+            Create Listing
+        </button>
+
+    </div>
+
+</div>
+
+<div class="dashboard-card">
+
+    <h2>My Listings</h2>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Condition</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach(var item in Items)
+            {
+                <tr>
+
+                    <td @onclick="() => HandleSearch(item)">@item.Title</td>
+
+                    <td>₦@item.Price</td>
+
+                    <td>@item.Condition</td>
+
+                    <td>
+                        @(item.IsAvailable ? "Available" : "Sold")
+                    </td>
+
+                    <td>
+
+                        <button class="primary-btn" @onclick="() => NavigateToEditListing(item)">
+                            Edit
+                        </button>
+
+                        |
+
+                        <button class="primary-btn" @onclick="() => NavigateToDeleteListing(item)">
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<MessagesSection UserId="@User.Id" />
+
+@code {
+
+    [Parameter]
+    public ApplicationUser User { get; set; } = default!;
+
+    public List<Item> Items = new List<Item>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine(User.Listings.Count);
+        foreach (int i in User.Listings)
+        {
+            Items.Add(await ItemService.GetItemByIdAsync(i));
+        }
+    }
+
+    public void NavigateToEditListing(Item item)
+    {    
+       Nav.NavigateTo($"/listings/edit/{item.Id}");
+    }
+
+    public void NavigateToDeleteListing(Item item)
+    {    
+       Nav.NavigateTo($"/listings/delete/{item.Id}");
+    }
+
+    public void NavigateToCreateListing()
+    {    
+       Nav.NavigateTo($"/listings/create");
+    }
+
+    public void HandleSearch(Item item)
+    {    
+       Nav.NavigateTo($"/item/{item.Id}");
+    }
+
+}

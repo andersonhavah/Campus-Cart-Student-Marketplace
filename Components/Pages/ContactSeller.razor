@@ -1,8 +1,12 @@
 @page "/contact-seller/{ItemId:int}"
 @using Campus_Cart_Student_Marketplace.Models
-@using Campus_Cart_Student_Marketplace.Services
-@inject MessageService MessageService
-@inject ItemService ItemService
+@inject Campus_Cart_Student_Marketplace.Services.MessageService MessageService 
+@inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService 
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
 <div class="container my-5" style="max-width: 650px;">
@@ -71,34 +75,46 @@
 
 @code {
     [Parameter] public int ItemId { get; set; }
-    
-    private Item? targetItem;
-    private Message messageModel = new();
-    private bool displaySuccessPrompt = false;
+    [Parameter] public string ReceiverId { get; set; } = string.Empty;
 
-    protected override void OnInitialized()
+    private Campus_Cart_Student_Marketplace.Models.Message messageModel = new();
+    private bool isSuccess = false;
+
+    protected override async Task OnInitializedAsync()
     {
-        targetItem = ItemService.GetItemById(ItemId);
+        var authState =
+            await AuthStateProvider
+                .GetAuthenticationStateAsync();
 
-        if (targetItem != null)
-        {
-            messageModel.ItemId = ItemId;
-            messageModel.SenderUserId = "mock-buyer-555"; // Hardshake system integration mock placeholder
-            messageModel.ReceiverUserId = targetItem.ApplicationUserId; 
-        }
+        var CurrentUser =
+            await UserManager.GetUserAsync(
+                authState.User);
+        var item = await ItemService.GetItemByIdAsync(ItemId);
+
+        if (item == null) return;
+
+        messageModel.ItemId = ItemId;
+
+        // seller receives message
+        messageModel.ReceiverUserId = item.SellerId;
+
+        // sender should be current logged-in user (placeholder for now)
+        messageModel.SenderUserId = CurrentUser.Id;
     }
 
-    private void ExecuteMessageSubmission()
+    private async Task HandleSend()
     {
-        var outcome = MessageService.SendMessage(messageModel);
-        if (outcome)
+        var sent = await MessageService.SendMessage(messageModel);
+
+        if (sent)
         {
-            displaySuccessPrompt = true;
+            isSuccess = true;
+            messageModel.Content = "";
         }
     }
 
     private void ReturnToCatalog()
     {
-        NavigationManager.NavigateTo("/marketplace");
+        NavigationManager.NavigateTo($"/item/{ItemId}");
     }
 }
