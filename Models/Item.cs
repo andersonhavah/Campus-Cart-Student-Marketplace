@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -27,9 +28,9 @@ namespace Campus_Cart_Student_Marketplace.Models
         [StringLength(50)]
         public string Condition { get; set; } = "Used";
 
-        public bool IsAvailable { get; set; } = true;
+        public DateTime DatePosted { get; set; } = DateTime.UtcNow;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsSold { get; set; } = false;
 
         [Required]
         public int CategoryId { get; set; }

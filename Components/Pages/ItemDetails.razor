@@ -12,9 +12,7 @@
 
         <div class="item-details__gallery">
 
-            <img class="main-image"
-                src="@Item.ImageUrl"
-                alt="@Item.Title" />
+            <img class="main-image" src="@item.ImageUrl" alt="@item.Title" />
 
             <div class="thumbnail-list">
 
@@ -141,8 +139,8 @@
     private Item Item = new Item();
 
     private List<Item> Items = [];
-    private List<Category> Categories = [];
-
+    // Change plain 'Category' to the absolute full namespace path:
+    private Campus_Cart_Student_Marketplace.Models.Category currentCategory;
     protected override async Task OnInitializedAsync()
     {
         Item = await ItemService.GetItemByIdAsync(Id);
