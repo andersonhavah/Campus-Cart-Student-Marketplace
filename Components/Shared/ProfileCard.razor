@@ -1,0 +1,46 @@
+@using Campus_Cart_Student_Marketplace.Models
+@inject NavigationManager Nav
+<div class="profile-card">
+
+    <div class="profile-avatar">
+        @User.FullName[0]
+    </div>
+
+    <h2>@User.FullName</h2>
+
+    <p class="UserName">
+        @User.UserName
+    </p>
+
+    <div class="profile-info">
+
+        <p>
+            <strong>Email</strong>
+            <br />
+            @User.Email
+        </p>
+
+        <p>
+            <strong>Address</strong>
+            <br />
+            @User.Address
+        </p>
+
+    </div>
+
+    <button class="primary-btn" @onclick="() => NavigateToEditProfile()">
+        Edit Profile
+    </button>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public ApplicationUser User { get; set; } = default!;
+
+    public void NavigateToEditProfile()
+    {    
+       Nav.NavigateTo($"/profile/edit/?userid={Uri.EscapeDataString(User.Id.Trim())}");
+    }
+}

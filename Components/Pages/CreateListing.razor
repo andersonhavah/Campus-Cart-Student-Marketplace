@@ -1,0 +1,203 @@
+@page "/listings/create"
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject IWebHostEnvironment Environment
+@using Campus_Cart_Student_Marketplace.Models
+@inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
+
+@inject Campus_Cart_Student_Marketplace.Services.CategoryService CategoryService
+@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService
+@inject NavigationManager Nav
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Create Listing</PageTitle>
+
+<div class="form-page">
+
+    <div class="form-card">
+
+        <h1>Create Listing</h1>
+
+        <EditForm Model="Item" OnValidSubmit="CreateListings">
+
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label>Title</label>
+                <InputText @bind-Value="Item.Title" />
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <InputTextArea @bind-Value="Item.Description" />
+            </div>
+
+            <div class="form-group">
+                <label>Price (₦)</label>
+                <InputNumber @bind-Value="Item.Price" />
+            </div>
+
+            <div class="form-group">
+                <label>Product Image</label>
+
+                <InputFile OnChange="UploadImage" />
+
+                @if (!string.IsNullOrEmpty(Item.ImageUrl))
+                {
+                    <img src="@Item.ImageUrl"
+                        alt="Preview"
+                        style="width:200px;height:200px;object-fit:cover;margin-top:10px;border-radius:8px;" />
+                }
+            </div>
+
+            <div class="form-group">
+                <label>Condition</label>
+
+                <InputSelect @bind-Value="Item.Condition">
+                    <option value="New">New</option>
+                    <option value="Like New">Like New</option>
+                    <option value="Used">Used</option>
+                </InputSelect>
+
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+
+                <InputSelect @bind-Value="Item.CategoryId">
+
+                    @foreach(var category in Categories)
+                    {
+                        <option value="@category.Id">
+                            @category.Name
+                        </option>
+                    }
+
+                </InputSelect>
+
+            </div>
+
+            <button type="submit" class="primary-btn">
+                Create Listing
+            </button>
+
+            <button class="secondary-btn" @onclick="NavigateToDashboard">
+                Cancel
+            </button>
+
+        </EditForm>
+
+    </div>
+
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? userid { get; set; } = string.Empty;
+
+    private ApplicationUser User = default!;
+
+    private Item Item = new();
+
+    private List<Category> Categories = new()
+    {
+        new() { Id = 1, Name = "Books" },
+        new() { Id = 2, Name = "Electronics" },
+        new() { Id = 3, Name = "Furniture" }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = CategoryService.GetCategories();
+        var authState =
+            await AuthStateProvider.GetAuthenticationStateAsync();
+
+        Console.WriteLine(
+            $"Authenticated: {authState.User.Identity?.IsAuthenticated}");
+
+        var user =
+            await UserManager.GetUserAsync(authState.User);
+        if (user == null)
+        {
+            Nav.NavigateTo("/login", true);
+            return;
+        }
+
+        if (user == null)
+        {
+            Nav.NavigateTo("/login", true);
+            return;
+        }
+
+        User = user;
+    }
+
+
+    private async Task CreateListings()
+    {
+        try
+        {
+            if (User == null)
+                return;
+
+            Item.SellerId = User.Id;
+
+            int id = await ItemService.AddItemAsync(Item);
+
+            if (User.Listings == null)
+                User.Listings = new List<int>();
+
+            if (!User.Listings.Contains(id))
+                User.Listings.Add(id);
+
+            await UserService.UpdateUser(User);
+
+            Nav.NavigateTo("/dashboard");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("CreateListings Error: " + ex);
+        }
+    }
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file == null)
+            return;
+
+        var fileName =
+            $"{Guid.NewGuid()}{Path.GetExtension(file.Name)}";
+
+        var folderPath = Path.Combine(
+            Environment.WebRootPath,
+            "imgs");
+
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+
+        var filePath = Path.Combine(
+            folderPath,
+            fileName);
+
+        await using FileStream stream =
+            new(filePath, FileMode.Create);
+
+        await file.OpenReadStream(10_000_000)
+            .CopyToAsync(stream);
+
+        Item.ImageUrl = $"/imgs/{fileName}";
+    }
+
+    private void NavigateToDashboard()
+    {
+        Nav.NavigateTo($"/dashboard");
+    }
+
+}

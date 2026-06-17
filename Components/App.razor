@@ -1,9 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Campus Cart is a student marketplace web app where students can buy and sell used textbooks, electronics, and essentials through secure listings, search, and messaging features.">
     <base href="/" />
     <ResourcePreloader />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +21,11 @@
 </head>
 
 <body>
-    <Routes @rendermode="InteractiveServer"/>
+    <CascadingAuthenticationState>
+
+        <Routes @rendermode="InteractiveServer" />
+
+    </CascadingAuthenticationState>
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
