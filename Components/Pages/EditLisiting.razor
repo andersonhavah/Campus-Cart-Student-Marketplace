@@ -68,7 +68,6 @@
 
         Console.WriteLine(
             $"Authenticated: {authState.User.Identity?.IsAuthenticated}");
-
         var user =
             await UserManager.GetUserAsync(authState.User);
 
@@ -83,9 +82,6 @@
     }
 
     private async Task EditListing()
-    {
-        await ItemService.UpdateItemAsync(Item);
-        Nav.NavigateTo($"/dashboard");
     }
 
     private void NavigateToDashboard()

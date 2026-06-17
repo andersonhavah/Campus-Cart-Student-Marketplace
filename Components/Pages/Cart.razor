@@ -101,19 +101,12 @@
     {
         cartItem.Quantity = qty;
 
+<<<<<<< HEAD
         var success = await CartService.UpdateQuantity(cartItem);
 
         if (success)
-        {
-            Nav.NavigateTo(Nav.Uri, forceLoad: true);
-        }
-    }
 
-    private void LoadCart()
-    {
-        cartItems = CartService.GetCartItems(currentUserId);
-    }
-
+>>>>>>> 08bc66ec1e805988b90764532f66ed8adb309447
     private void RemoveItem(int cartItemId)
     {
         CartService.RemoveFromCart(cartItemId);

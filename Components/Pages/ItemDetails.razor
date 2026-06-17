@@ -152,7 +152,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var authState =
             await AuthStateProvider.GetAuthenticationStateAsync();
 
         Console.WriteLine(
@@ -163,8 +162,6 @@
         CurrentUser = user;
 
         Item = await ItemService.GetItemByIdAsync(Id);
-        Items = await ItemService.GetItemsByCategoryAsync(Item.CategoryId);
-        Categories = CategoryService.GetCategories();
     }
 
     public void HandleContact()

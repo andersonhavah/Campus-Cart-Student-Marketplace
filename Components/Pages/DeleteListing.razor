@@ -72,15 +72,12 @@
         var deleted = await ItemService.DeleteItemAsync(Id);
         User.Listings.Remove(Id);
         await UserService.UpdateUser(User);
-        var cartitems = await CartService.GetCartItemAsync(Id);
 
         foreach (var I in cartitems){
             await CartService.RemoveFromCart(I.Id);
         }
         
 
-        if (deleted)
-        {
             Nav.NavigateTo("/dashboard");
         }
     }

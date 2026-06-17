@@ -11,12 +11,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Campus_Cart_Student_Marketplace.Data;
 using Campus_Cart_Student_Marketplace.Models;
 using Campus_Cart_Student_Marketplace.Controllers;
+<<<<<<< HEAD
+=======
 
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("ApplicationDbContext") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContext' not found.")));
+// 🌟 ADD THIS EXACT LINE TO POINT TO THE ROOT APP COMPONENT:
 
+<<<<<<< HEAD
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();;
+=======
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>();
+>>>>>>> 08bc66ec1e805988b90764532f66ed8adb309447
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 // Add services to the container.
@@ -28,6 +32,10 @@ builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ApplicationUserService>();
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 08bc66ec1e805988b90764532f66ed8adb309447
 builder.Services.AddHttpClient();
 builder.Services.AddScoped(sp =>
 {
@@ -145,12 +153,21 @@ app.MapPost("/api/login", async (
     return Results.Redirect("/dashboard");
 });
 
+<<<<<<< HEAD
 app.MapGet("/logout", async (
     HttpContext context,
     SignInManager<ApplicationUser> signInManager) =>
 {
     await signInManager.SignOutAsync();
     return Results.Redirect("/");
+=======
+app.MapPost("/api/logout", async (
+    SignInManager<ApplicationUser> signInManager) =>
+{
+    await signInManager.SignOutAsync();
+
+    return Results.Ok();
+>>>>>>> 08bc66ec1e805988b90764532f66ed8adb309447
 });
 
 
@@ -158,3 +175,11 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+<<<<<<< HEAD
+=======
+
+
+public record LoginRequest(
+    string Email,
+    string Password);
+>>>>>>> 08bc66ec1e805988b90764532f66ed8adb309447

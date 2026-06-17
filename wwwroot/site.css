@@ -1218,15 +1218,11 @@ table{
 th,td{
     padding:12px;
     text-decoration: center;
-    border-bottom:1px solid #eee;
-}
-
 @media(max-width:900px){
 
     .dashboard-container{
         grid-template-columns:100%;
     }
-
     table{
         font-size: x-small;
     }
@@ -1241,9 +1237,6 @@ th,td{
         padding:1px;
         text-align:left;
         border-bottom:1px solid #eee;
-    }
-
-}
 
 .form-page,
 .confirm-page{
