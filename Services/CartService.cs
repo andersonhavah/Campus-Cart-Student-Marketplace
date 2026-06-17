@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Campus_Cart_Student_Marketplace.Data;
 using Campus_Cart_Student_Marketplace.Models;
 using Microsoft.EntityFrameworkCore;
@@ -58,34 +62,37 @@ namespace Campus_Cart_Student_Marketplace.Services
             }
         }
 
-        public void UpdateQuantity(int cartItemId, int quantity)
-{
-        var item = _mockCart.FirstOrDefault(c => c.Id == cartItemId);
-        if (item != null && quantity > 0)
+        public async Task UpdateQuantity(int cartItemId, int quantity)
         {
-            item.Quantity = quantity;
+            if (quantity <= 0) return;
+
+            var existing = await _context.CartItem.FindAsync(cartItemId);
+            if (existing != null)
+            {
+                existing.Quantity = quantity;
+                await _context.SaveChangesAsync();
+                OnCartChanged?.Invoke();
+            }
+        }
+
+        public async Task<bool> UpdateQuantity(CartItem updatedItem)
+        {
+            var existing = await _context.CartItem.FindAsync(updatedItem.Id);
+            if (existing == null) return false;
+
+            existing.Quantity = updatedItem.Quantity;
+            await _context.SaveChangesAsync();
             OnCartChanged?.Invoke();
-    }
-}
+
+            return true;
+        }
 
         public decimal GetTotal(string userId)
         {
             return _context.CartItem
                 .Include(c => c.Item)
                 .Where(c => c.ApplicationUserId == userId)
-                .Sum(c => (c.Item.Price) * c.Quantity);
-        }
-
-        public async Task<bool> UpdateQuantity(CartItem updatedItem)
-        {
-            var existing = await _context.CartItem.FindAsync(updatedItem.Id);
-
-            if (existing == null) return false;
-
-            existing.Quantity = updatedItem.Quantity;
-            await _context.SaveChangesAsync();
-
-            return true;
+                .Sum(c => (c.Item != null ? c.Item.Price : 0) * c.Quantity);
         }
     }
 }

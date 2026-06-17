@@ -1,218 +1,147 @@
 @page "/marketplace"
-@using Microsoft.AspNetCore.Components
-@inject NavigationManager Nav
-@rendermode InteractiveServer
-@using Campus_Cart_Student_Marketplace.Components.Shared
-@inject Campus_Cart_Student_Marketplace.Services.ItemService ItemService
-@inject Campus_Cart_Student_Marketplace.Services.CategoryService CategoryService
+@page "/marketplace/{CategoryId:int}"
 @using Campus_Cart_Student_Marketplace.Models
+@using Campus_Cart_Student_Marketplace.Services
+@inject ItemService ItemService
+@inject CartService CartService
+@inject NavigationManager NavigationManager
 
-<PageTitle>Campus Cart - MarketPlace</PageTitle>
-
-<div class="main">
-
-    <button class="filter-toggle" @onclick="OpenFilters">
-        ☰ Filters
-    </button>
-
-    <div class="market">
-
-        <!-- Desktop Sidebar -->
-        <aside class="market-side">
-            <h3>Categories</h3>
-
-            <div class="category-list">
-                @foreach (var category in Categories)
-                {
-                    <label>
-                        <input type="checkbox" checked="@SelectedCategories.Contains(category.Id)"
-                               @onchange="(e) => ToggleCategory(category.Id)" />
-
-                        @category.Name
-                        (@GetCategoryCount(category.Id))
-                    </label>
-                }
+<div class="container my-4">
+    <div class="row g-3 mb-4 align-items-center">
+        <div class="col-md-6">
+            <div class="input-group shadow-sm rounded">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0"
+                       placeholder="Search textbooks, chairs, electronics..." @bind-value="searchTerm"
+                       @bind-value:event="oninput" @onkeyup="HandleSearch" />
             </div>
-
-            <div class="price-filter">
-                <label>
-                    Maximum Price: <strong>₦@MaxPrice</strong>
-                </label>
-
-                <input type="range" min="0" max="500000" step="1000" value="@MaxPrice" @oninput="UpdatePrice" />
+        </div>
+        <div class="col-md-6 text-md-end">
+            <span class="text-muted me-2 small">Filter Feed:</span>
+            <div class="btn-group shadow-sm" role="group">
+                <button class="btn btn-outline-primary btn-sm @(CategoryId == null ? "active" : "")"
+                        @onclick="() => FilterByCategory(null)">All</button>
+                <button class="btn btn-outline-primary btn-sm @(CategoryId == 1 ? "active" : "")"
+                        @onclick="() => FilterByCategory(1)">Furniture</button>
+                <button class="btn btn-outline-primary btn-sm @(CategoryId == 2 ? "active" : "")"
+                        @onclick="() => FilterByCategory(2)">Appliances</button>
+                <button class="btn btn-outline-primary btn-sm @(CategoryId == 3 ? "active" : "")"
+                        @onclick="() => FilterByCategory(3)">Electronics</button>
+                <button class="btn btn-outline-primary btn-sm @(CategoryId == 4 ? "active" : "")"
+                        @onclick="() => FilterByCategory(4)">Books</button>
             </div>
-        </aside>
-
-        <!-- Products -->
-        <section class="market-main">
-            @if (loading)
-            {
-                @for (int i = 0; i < 12; i++)
-                {
-                    <Loading Text="Loading marketplace items..." />
-                }
-            }
-            else
-            {
-                @foreach (var item in items)
-                {
-                    <ItemComponent @key="item.Id" Item="item" />
-                }
-            }
-        </section>
-
+        </div>
     </div>
+
+    @if (!filteredItems.Any())
+    {
+        <div class="text-center py-5 bg-white rounded shadow-sm border">
+            <i class="bi bi-patch-question text-muted" style="font-size: 3rem;"></i>
+            <h4 class="fw-bold text-secondary mt-3">No campus deals found</h4>
+            <p class="text-muted">Try modifying your search term keywords or selecting a alternative category.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var item in filteredItems)
+            {
+                <div class="col">
+                    <div
+                        class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden position-relative bg-white transition-card">
+                        <span class="badge bg-dark position-absolute top-0 end-0 m-2 shadow-sm fs-7">@item.Condition</span>
+
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "images/placeholder.png" : item.ImageUrl)"
+                             class="card-img-top" alt="@item.Title" style="height: 180px; object-fit: cover;" />
+
+                        <div class="card-body d-flex flex-column p-3">
+                            <h6 class="card-title fw-bold text-dark mb-1 text-truncate">@item.Title</h6>
+                            <p class="card-text text-muted small text-truncate-2 flex-grow-1 mb-2">@item.Description</p>
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
+                                <span class="fs-5 fw-bold text-success">$@((item.Price / 1000.00m).ToString("N2"))</span>
+                                <div class="btn-group gap-1">
+                                    <button class="btn btn-sm btn-outline-secondary rounded"
+                                            @onclick="() => ViewDetails(item.Id)">
+                                        Details
+                                    </button>
+                                    <button class="btn btn-sm btn-primary rounded px-2" @onclick="() => AddToBasket(item)">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
 
-@if (ShowFilters)
-{
-    <div class="filter-overlay" @onclick="CloseFilters">
-
-        <div class="filter-modal" @onclick:stopPropagation="true">
-
-            <button class="close-btn" @onclick="CloseFilters">
-                ✕
-            </button>
-
-            <h3>Categories</h3>
-
-            <div class="category-list">
-                @foreach (var category in Categories)
-                {
-                    <label>
-                        <input type="checkbox" checked="@SelectedCategories.Contains(category.Id)"
-                               @onchange="(e) => ToggleCategory(category.Id)" />
-
-                        @category.Name
-                        (@GetCategoryCount(category.Id))
-                    </label>
-                }
-            </div>
-
-            <div class="price-filter">
-                <label>
-                    Maximum Price: <strong>₦@MaxPrice</strong>
-                </label>
-
-                <input type="range" min="0" max="500000" step="1000" value="@MaxPrice" @oninput="UpdatePrice" />
-            </div>
-
-        </div>
-
-    </div>
-}
-
 @code {
-    [SupplyParameterFromQuery]
-    public string? Search { get; set; } = string.Empty;
+    [Parameter] public int? CategoryId { get; set; }
 
-    [SupplyParameterFromQuery]
-    public int? Category { get; set; }
+    private List<Item> allItems = new();
+    private List<Item> filteredItems = new();
+    private string searchTerm = string.Empty;
 
-    private HashSet<int> SelectedCategories = new();
-
-    private int MaxPrice = 50000;
-
-    private bool ShowFilters = false;
-
-    private bool loading = true;
-
-    private List<Item> Items = [];
-    private List<Item> items = [];
-    // Change plain 'Category' to the absolute full namespace path:
-    private Campus_Cart_Student_Marketplace.Models.Category selectedCategory;
+    // Fixed Lifecycle Handler Link (CS0111 Remediation Node)
     protected override async Task OnParametersSetAsync()
     {
-        loading = true;
-
-        // Load from services (single source of truth)
-        Items = await ItemService.GetItemsAsync();
-        Categories = CategoryService.GetCategories();
-
-        loading = false;
+        LoadMarketplaceFeed();
+        await Task.CompletedTask;
     }
 
-    protected override async Task OnParametersSetAsync()
+    private void LoadMarketplaceFeed()
     {
-        loading = true;
+        // 1. Core catalog data extraction routing
+        allItems = ItemService.GetItems() ?? new List<Item>();
 
-        // Sync URL category → selected filters
-        SelectedCategories.Clear();
-
-        if (Category is not null)
+        // 2. Structural evaluation across Category criteria metrics
+        if (CategoryId.HasValue && CategoryId.Value > 0)
         {
-            SelectedCategories.Add(Category.Value);
-        }
-
-        await FilterItems(Search);
-    }
-
-    private async Task FilterItems(string? search)
-    {
-        loading = true;
-
-        IEnumerable<Item> query = Items;
-
-        // Use ItemService logic (centralized search behavior)
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            query = await ItemService.SearchItemsAsync(search);
-        }
-
-        // Category filter (still local UI state)
-        if (SelectedCategories.Any())
-        {
-            query = query.Where(item =>
-                SelectedCategories.Contains(item.CategoryId));
-        }
-
-        // Price filter
-        query = query.Where(item =>
-            item.Price <= MaxPrice);
-
-        items = query.ToList();
-
-        loading = false;
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private void OpenFilters()
-    {
-        ShowFilters = true;
-    }
-
-    private void CloseFilters()
-    {
-        ShowFilters = false;
-    }
-
-    private async Task ToggleCategory(int categoryId)
-    {
-        if (SelectedCategories.Contains(categoryId))
-        {
-            SelectedCategories.Remove(categoryId);
+            filteredItems = allItems.Where(i => i.CategoryId == CategoryId.Value).ToList();
         }
         else
         {
-            SelectedCategories.Add(categoryId);
+            filteredItems = allItems.ToList();
         }
 
-        await FilterItems(Search);
-    }
-
-    private async Task UpdatePrice(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out int value))
+        // 3. Sequential evaluation across input keyword search variables
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            MaxPrice = value;
+            var cleanedTerm = searchTerm.Trim().ToLower();
+            filteredItems = filteredItems.Where(i =>
+                i.Title.ToLower().Contains(cleanedTerm) ||
+                i.Description.ToLower().Contains(cleanedTerm)).ToList();
         }
-
-        await FilterItems(Search);
     }
 
-    private int GetCategoryCount(int categoryId)
+    private void HandleSearch()
     {
-        return Items.Count(i => i.CategoryId == categoryId);
+        LoadMarketplaceFeed();
+    }
+
+    private void FilterByCategory(int? selectedCategoryId)
+    {
+        if (selectedCategoryId.HasValue)
+        {
+            NavigationManager.NavigateTo($"/marketplace/{selectedCategoryId.Value}");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/marketplace");
+        }
+    }
+
+    private void AddToBasket(Item selectedItem)
+    {
+        CartService.AddToCart(selectedItem, "mock-student-123");
+        NavigationManager.NavigateTo("/cart");
+    }
+
+    private void ViewDetails(int itemId)
+    {
+        NavigationManager.NavigateTo($"/item-details/{itemId}");
     }
 }

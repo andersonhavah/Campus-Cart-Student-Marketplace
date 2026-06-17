@@ -1,13 +1,9 @@
 @page "/cart"
-
 @using Campus_Cart_Student_Marketplace.Models
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Identity
-@inject Campus_Cart_Student_Marketplace.Services.ApplicationUserService UserService 
-@inject UserManager<ApplicationUser> UserManager
-@inject AuthenticationStateProvider AuthStateProvider
-@inject Campus_Cart_Student_Marketplace.Services.CartService CartService
-@inject NavigationManager Nav
+@using Campus_Cart_Student_Marketplace.Services
+@inject CartService CartService
+@inject NavigationManager NavigationManager
+@implements IDisposable
 
 <div class="container my-5">
     <div class="d-flex align-items-center mb-4">
@@ -22,120 +18,97 @@
                 <i class="bi bi-cart-x text-muted" style="font-size: 4rem;"></i>
             </div>
             <h4 class="fw-bold text-secondary">Your cart feels a bit light!</h4>
-            <p class="text-muted mx-auto" style="max-width: 400px;">Explore affordable student deals on textbooks, electronics, and supplies listed directly by your peers.</p>
-            <button class="btn btn-primary px-4 py-2 mt-2 fw-bold shadow-sm" @onclick="NavigateToMarketplace">
-                Browse the Marketplace
-            </button>
-        </div>
-    }
+            <p class="text-muted mx-auto" style="max-width: 400px;">Explore affordable student deals on textbooks,
+                electronics, and supplies listed directly by your peers.</p>
+                <button class="btn btn-primary px-4 py-2 mt-2 fw-bold shadow-sm" @onclick="NavigateToMarketplace">
+                    Browse the Marketplace
+                </button>
+            </div>
+        }
     else
-    {
-        <div class="row g-4">
-            <div class="col-lg-8">
-                @foreach (var item in cartItems)
-                {
-                    <div class="card mb-3 shadow-sm border-0 rounded-3 position-relative bg-white overflow-hidden">
-                        <div class="card-body d-flex align-items-center p-3">
-                            <img src="@(string.IsNullOrEmpty(item.Item?.ImageUrl) ? "images/placeholder.png" : item.Item.ImageUrl)" 
-                                 alt="@item.Item?.Title" 
-                                 class="rounded-2 me-3" 
-                                 style="width: 90px; height: 90px; object-fit: cover;" />
-                            
-                            <div class="flex-grow-1">
-                                <span class="badge bg-light text-primary mb-1 small">@item.Item?.Category?.Name</span>
-                                <h5 class="fw-bold mb-1 text-dark">@item.Item?.Title</h5>
-                                <p class="text-muted small mb-0">Seller ID: @item.Item?.ApplicationUserId</p>
-                                <div class="text-primary fw-bold fs-5 mt-1">$@item.Item?.Price</div>
-                            </div>
-                            <div class="d-flex align-items-center me-3">
-                                <input type="number" class="form-control text-center" style="width: 70px;"
-                                       value="@item.Quantity"
-                                       @onchange="@((ChangeEventArgs e) => UpdateQty(item, int.Parse(e.Value?.ToString())))" min="1" />
-                            </div>
+        {
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    @foreach (var item in cartItems)
+                    {
+                        <div class="card mb-3 shadow-sm border-0 rounded-3 bg-white overflow-hidden">
+                            <div class="card-body d-flex align-items-center p-3">
+                                <img src="@(string.IsNullOrEmpty(item.Item?.ImageUrl) ? "images/placeholder.png" : item.Item.ImageUrl)"
+                                     alt="@item.Item?.Title" class="rounded-2 me-3"
+                                     style="width: 90px; height: 90px; object-fit: cover;" />
 
-                            <div>
-                                <button class="btn btn-outline-danger btn-sm p-2 rounded-3 border-2" 
-                                        @onclick="() => RemoveFromCart(item.Id)"
-                                        title="Remove item from cart">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
+                                <div class="flex-grow-1">
+                                    <h5 class="fw-bold mb-1 text-dark">@item.Item?.Title</h5>
+                                    <p class="text-muted small mb-0">Condition: @item.Item?.Condition</p>
+                                    <div class="text-primary fw-bold fs-5 mt-1">$@((item.Item?.Price ?? 0) / 1000.00m)</div>
+                                </div>
+
+                                <div class="d-flex flex-column align-items-center me-4">
+                                    <label class="form-label small text-muted mb-1">Qty</label>
+                                    <input type="number" class="form-control text-center fw-bold border-2" style="width: 75px;"
+                                           value="@item.Quantity"
+                                           @onchange="@(async (ChangeEventArgs e) => await HandleQuantityChange(item.Id, e.Value?.ToString()))"
+                                           min="1" max="99" />
+                                </div>
+
+                                <div>
+                                    <button class="btn btn-outline-danger btn-sm p-2 rounded-3 border-2"
+                                            @onclick="() => RemoveFromCart(item.Id)">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
-            </div>
-            
-            <div class="col-lg-4">
-                <div class="card p-4 shadow-sm border-0 rounded-3 bg-light position-sticky" style="top: 20px;">
-                    <h4 class="fw-bold text-dark mb-3">Order Summary</h4>
-                    <hr class="text-muted" />
-                    
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Subtotal Items</span>
-                        <span class="fw-semibold text-dark">@cartItems.Sum(i => i.Quantity)</span>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between mb-4 fs-4 fw-bold text-dark">
-                        <span>Total Est:</span>
-                        <span class="text-success">$@CartService.GetTotal(currentUserId).ToString("N2")</span>
-                    </div>
-                    
-                    <div class="alert alert-warning border-0 shadow-sm rounded-3 py-3 small mb-4">
-                        <i class="bi bi-shield-fill-exclamation text-warning me-2 fs-5 align-middle"></i>
-                        <strong>Safe Exchange Notice:</strong> Campus Cart does not process digital financial transactions online. Please coordinate an open, public meet-up on campus to complete your exchange safely.
-                    </div>
-                    
-                    <button class="btn btn-success w-100 py-3 fw-bold shadow-sm rounded-3 uppercase" disabled>
-                        Confirm Handoff Order
-                    </button>
+                    }
                 </div>
-            </div>
+
+                <div class="col-lg-4">
+                    <div class="card p-4 shadow-sm border-0 rounded-3 bg-light position-sticky" style="top: 20px;">
+                        <h4 class="fw-bold text-dark mb-3">Order Summary</h4>
+                        <hr class="text-muted" />
+                        <div class="d-flex justify-content-between mb-4 fs-4 fw-bold text-dark">
+                            <span>Total Est:</span>
+                            <span class="text-success">$@((CartService.GetTotal(currentUserId) /
+                                                        1000.00m).ToString("N2"))</span>
+                            </div>
+                            <button class="btn btn-success w-100 py-3 fw-bold shadow-sm rounded-3 uppercase" disabled>
+                                Confirm Handoff Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-    }
-</div>
 
 @code {
-    private List<Campus_Cart_Student_Marketplace.Models.CartItem> cartItems = new();
-    private ApplicationUser CurrentUser = new();
+    private List<CartItem> cartItems = new();
     private string currentUserId = "mock-student-123";
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var authState =
-            await AuthStateProvider
-                .GetAuthenticationStateAsync();
-
-        var CurrentUser =
-            await UserManager.GetUserAsync(
-                authState.User);
-        // TEMP ONLY (replace with real logged-in user later)
-        currentUserId = CurrentUser.Id;
-
-        LoadCart();
+        CartService.OnCartChanged += RefreshCartState;
+        RefreshCartState();
     }
 
-    private async Task UpdateQty(CartItem cartItem, int qty)
-    {
-        cartItem.Quantity = qty;
-
-        var sent = await CartService.UpdateQuantity(cartItem);
-
-        if (sent)
-        {
-            Nav.NavigateTo(Nav.Uri, forceLoad: true);
-        }
-    }
-
-    private void LoadCart()
+    private void RefreshCartState()
     {
         cartItems = CartService.GetCartItems(currentUserId);
+        InvokeAsync(StateHasChanged);
     }
 
-
-
-    private void RemoveItem(int cartItemId)
+    private async Task HandleQuantityChange(int cartItemId, string? rawValue)
     {
-        CartService.RemoveFromCart(cartItemId);
+        if (int.TryParse(rawValue, out int updatedQty) && updatedQty > 0)
+        {
+            await CartService.UpdateQuantity(cartItemId, updatedQty);
+        }
+        RefreshCartState();
+    }
+
+    private async Task RemoveFromCart(int cartItemId)
+    {
+        await CartService.RemoveFromCart(cartItemId);
+        RefreshCartState();
     }
 
     private void NavigateToMarketplace()
