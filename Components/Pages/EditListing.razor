@@ -1,0 +1,276 @@
+@page "/edit-listing/{listingId:int}"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Campus_Cart_Student_Marketplace.Models
+@using Campus_Cart_Student_Marketplace.Services
+@attribute [Authorize]
+@inject UserManager<ApplicationUser> UserManager
+@inject HttpContext HttpContext
+@inject ListingService ListingService
+@inject NavigationManager NavigationManager
+@inject ILogger<EditListing> Logger
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Edit Listing</h3>
+                </div>
+                <div class="card-body p-5">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            @errorMessage
+                            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+                        </div>
+                    }
+
+                    @if (listing == null)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status"></div>
+                            <p>Loading listing...</p>
+                        </div>
+                    }
+                    else if (isUnauthorized)
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Unauthorized:</strong> You can only edit your own listings.
+                            <a href="/my-listings" class="btn btn-sm btn-primary">Back to My Listings</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <EditForm Model="editModel" OnValidSubmit="HandleUpdateListing">
+                            <DataAnnotationsValidator />
+
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Item Title *</label>
+                                <InputText id="title" class="form-control" @bind-Value="editModel.Title" />
+                                <ValidationMessage For="() => editModel.Title" class="text-danger" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category *</label>
+                                <InputSelect id="category" class="form-control" @bind-Value="editModel.CategoryId">
+                                    <option value="">-- Select a category --</option>
+                                    @foreach (var category in categories)
+                                    {
+                                        <option value="@category.CategoryId">@category.Name</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="() => editModel.CategoryId" class="text-danger" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="price" class="form-label">Price ($) *</label>
+                                <InputNumber id="price" class="form-control" @bind-Value="editModel.Price" step="0.01" />
+                                <ValidationMessage For="() => editModel.Price" class="text-danger" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="condition" class="form-label">Condition *</label>
+                                <InputSelect id="condition" class="form-control" @bind-Value="editModel.Condition">
+                                    <option value="">-- Select condition --</option>
+                                    <option value="New">New</option>
+                                    <option value="Like New">Like New</option>
+                                    <option value="Good">Good</option>
+                                    <option value="Fair">Fair</option>
+                                    <option value="Poor">Poor</option>
+                                </InputSelect>
+                                <ValidationMessage For="() => editModel.Condition" class="text-danger" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description *</label>
+                                <InputTextArea id="description" class="form-control" @bind-Value="editModel.Description" rows="5" />
+                                <ValidationMessage For="() => editModel.Description" class="text-danger" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location/Campus Area (Optional)</label>
+                                <InputText id="location" class="form-control" @bind-Value="editModel.Location" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="imageUrl" class="form-label">Image URL (Optional)</label>
+                                <InputText id="imageUrl" class="form-control" @bind-Value="editModel.ImageUrl" />
+                                <small class="form-text text-muted">Provide a direct URL to an image of the item</small>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(editModel.ImageUrl))
+                            {
+                                <div class="mb-3">
+                                    <img src="@editModel.ImageUrl" alt="Preview" class="img-thumbnail" style="max-width: 200px;" />
+                                </div>
+                            }
+
+                            <div class="mb-3">
+                                <label for="isAvailable" class="form-label">
+                                    <InputCheckbox id="isAvailable" @bind-Value="editModel.IsAvailable" />
+                                    Item is available for sale
+                                </label>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                        <span>Updating Listing...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Update Listing</span>
+                                    }
+                                </button>
+                            </div>
+                        </EditForm>
+
+                        <div class="text-center mt-3">
+                            <a href="/my-listings" class="text-decoration-none">Back to My Listings</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int ListingId { get; set; }
+
+    private Listing? listing;
+    private EditListingModel editModel = new();
+    private List<Category> categories = new();
+    private ApplicationUser? currentUser;
+    private bool isSubmitting = false;
+    private bool isUnauthorized = false;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            currentUser = await UserManager.GetUserAsync(HttpContext.User);
+            
+            if (currentUser == null)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+
+            listing = await ListingService.GetListingAsync(ListingId);
+            if (listing == null)
+            {
+                errorMessage = "Listing not found";
+                return;
+            }
+
+            if (listing.SellerId != currentUser.Id)
+            {
+                isUnauthorized = true;
+                return;
+            }
+
+            categories = await ListingService.GetCategoriesAsync();
+
+            editModel = new EditListingModel
+            {
+                Title = listing.Title,
+                Description = listing.Description,
+                Price = listing.Price,
+                CategoryId = listing.CategoryId,
+                Condition = listing.Condition,
+                Location = listing.Location,
+                ImageUrl = listing.ImageUrl,
+                IsAvailable = listing.IsAvailable
+            };
+
+            Logger.LogInformation($"User {currentUser.Email} opened edit listing {ListingId}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error loading listing {ListingId}");
+            errorMessage = "Error loading listing. Please try again.";
+        }
+    }
+
+    private async Task HandleUpdateListing()
+    {
+        try
+        {
+            if (currentUser == null || listing == null)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+
+            isSubmitting = true;
+            errorMessage = null;
+
+            var updatedListing = new Listing
+            {
+                ListingId = listing.ListingId,
+                Title = editModel.Title,
+                Description = editModel.Description,
+                Price = editModel.Price,
+                CategoryId = editModel.CategoryId,
+                Condition = editModel.Condition ?? "Good",
+                Location = editModel.Location,
+                ImageUrl = editModel.ImageUrl,
+                IsAvailable = editModel.IsAvailable
+            };
+
+            await ListingService.UpdateListingAsync(ListingId, updatedListing, currentUser.Id);
+            Logger.LogInformation($"Listing {ListingId} updated by {currentUser.Email}");
+
+            NavigationManager.NavigateTo($"/listing/{ListingId}");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            isUnauthorized = true;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error updating listing {ListingId}");
+            errorMessage = $"Error updating listing: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    public class EditListingModel
+    {
+        [Required(ErrorMessage = "Title is required")]
+        [StringLength(200, MinimumLength = 5)]
+        public string Title { get; set; } = "";
+
+        [Required(ErrorMessage = "Description is required")]
+        [StringLength(5000, MinimumLength = 20)]
+        public string Description { get; set; } = "";
+
+        [Required(ErrorMessage = "Price is required")]
+        [Range(0.01, 10000)]
+        public decimal Price { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue)]
+        public int CategoryId { get; set; }
+
+        [Required]
+        public string? Condition { get; set; }
+
+        public string? Location { get; set; }
+
+        [Url]
+        public string? ImageUrl { get; set; }
+
+        public bool IsAvailable { get; set; } = true;
+    }
+}

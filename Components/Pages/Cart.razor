@@ -1,0 +1,242 @@
+@page "/cart"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Campus_Cart_Student_Marketplace.Models
+@using Campus_Cart_Student_Marketplace.Services
+@attribute [Authorize]
+@inject UserManager<ApplicationUser> UserManager
+@inject HttpContext HttpContext
+@inject CartService CartService
+@inject NavigationManager NavigationManager
+@inject ILogger<Cart> Logger
+
+<div class="container mt-4">
+    <h1 class="mb-4">Shopping Cart</h1>
+
+    @if (cartItems == null)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status"></div>
+            <p>Loading cart...</p>
+        </div>
+    }
+    else if (cartItems.Count == 0)
+    {
+        <div class="alert alert-info text-center">
+            <h5>Your cart is empty</h5>
+            <p>Start shopping to add items to your cart!</p>
+            <a href="/marketplace" class="btn btn-primary">Browse Marketplace</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <!-- Cart Items -->
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in cartItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(item.Listing?.ImageUrl))
+                                                {
+                                                    <img src="@item.Listing.ImageUrl" alt="@item.Listing.Title" 
+                                                        style="width: 50px; height: 50px; object-fit: cover; margin-right: 15px;" 
+                                                        class="rounded" />
+                                                }
+                                                <div>
+                                                    <strong>@item.Listing?.Title</strong>
+                                                    <br />
+                                                    <small class="text-muted">Seller: @item.Listing?.Seller?.StoreName</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>$@item.Listing?.Price.ToString("F2")</td>
+                                        <td>
+                                            <div class="input-group" style="width: 100px;">
+                                                <button class="btn btn-sm btn-outline-secondary" 
+                                                    @onclick="() => UpdateQuantity(item.CartItemId, item.Quantity - 1)">-</button>
+                                                <input type="number" class="form-control text-center" 
+                                                    value="@item.Quantity" readonly />
+                                                <button class="btn btn-sm btn-outline-secondary" 
+                                                    @onclick="() => UpdateQuantity(item.CartItemId, item.Quantity + 1)">+</button>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            $@((item.Listing?.Price ?? 0) * item.Quantity).ToString("F2")
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" 
+                                                @onclick="() => RemoveItem(item.CartItemId)">
+                                                🗑️ Remove
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="col-md-4">
+                <div class="card shadow position-sticky" style="top: 20px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Order Summary</h5>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Subtotal (@cartItems.Sum(i => i.Quantity) items):</span>
+                            <strong>$@cartTotal.ToString("F2")</strong>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Total:</h6>
+                            <h6 class="text-primary">$@cartTotal.ToString("F2")</h6>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg">
+                                📧 Contact Sellers
+                            </button>
+                            <a href="/marketplace" class="btn btn-outline-secondary">
+                                Continue Shopping
+                            </a>
+                        </div>
+
+                        <div class="mt-3">
+                            <button class="btn btn-outline-danger w-100" @onclick="ClearCart">
+                                Clear Cart
+                            </button>
+                        </div>
+
+                        <div class="alert alert-info mt-3 mb-0">
+                            <small>
+                                <strong>Note:</strong> Campus Cart helps you collect items and reach out to sellers. 
+                                Transactions are arranged directly with sellers.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<CartItem>? cartItems;
+    private ApplicationUser? currentUser;
+    private decimal cartTotal = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            currentUser = await UserManager.GetUserAsync(HttpContext.User);
+            
+            if (currentUser == null)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+
+            await LoadCart();
+            Logger.LogInformation($"User {currentUser.Email} accessed cart");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading cart");
+        }
+    }
+
+    private async Task LoadCart()
+    {
+        if (currentUser == null) return;
+
+        cartItems = await CartService.GetCartAsync(currentUser.Id);
+        CalculateTotal();
+    }
+
+    private void CalculateTotal()
+    {
+        cartTotal = 0;
+        if (cartItems != null)
+        {
+            cartTotal = cartItems.Sum(item => (item.Listing?.Price ?? 0) * item.Quantity);
+        }
+    }
+
+    private async Task UpdateQuantity(int cartItemId, int newQuantity)
+    {
+        try
+        {
+            if (currentUser == null) return;
+
+            if (newQuantity <= 0)
+            {
+                await RemoveItem(cartItemId);
+                return;
+            }
+
+            var cartItem = cartItems?.FirstOrDefault(c => c.CartItemId == cartItemId);
+            if (cartItem != null)
+            {
+                await CartService.UpdateQuantityAsync(currentUser.Id, cartItem.ListingId, newQuantity);
+                await LoadCart();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error updating quantity");
+        }
+    }
+
+    private async Task RemoveItem(int cartItemId)
+    {
+        try
+        {
+            if (currentUser == null) return;
+
+            var cartItem = cartItems?.FirstOrDefault(c => c.CartItemId == cartItemId);
+            if (cartItem != null)
+            {
+                await CartService.RemoveFromCartAsync(currentUser.Id, cartItem.ListingId);
+                await LoadCart();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing item");
+        }
+    }
+
+    private async Task ClearCart()
+    {
+        try
+        {
+            if (currentUser == null) return;
+
+            await CartService.ClearCartAsync(currentUser.Id);
+            await LoadCart();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error clearing cart");
+        }
+    }
+}

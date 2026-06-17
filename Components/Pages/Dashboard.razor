@@ -1,0 +1,143 @@
+@page "/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Campus_Cart_Student_Marketplace.Models
+@using Campus_Cart_Student_Marketplace.Services
+@attribute [Authorize]
+@inject UserManager<ApplicationUser> UserManager
+@inject HttpContext HttpContext
+@inject CartService CartService
+@inject ListingService ListingService
+@inject NavigationManager NavigationManager
+@inject ILogger<Dashboard> Logger
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Welcome, @currentUser?.FullName!</h1>
+        </div>
+    </div>
+
+    @if (currentUser == null)
+    {
+        <div class="alert alert-warning">Loading user information...</div>
+    }
+    else
+    {
+        <div class="row">
+            <!-- User Info Card -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Account Information</h5>
+                        <p class="mb-1"><strong>Email:</strong> @currentUser.Email</p>
+                        <p class="mb-1"><strong>Role:</strong> <span class="badge bg-info">@currentUser.UserRole</span></p>
+                        <p class="mb-1"><strong>Member Since:</strong> @currentUser.CreatedAt.ToShortDateString()</p>
+                        @if (currentUser.IsSellerAccount)
+                        {
+                            <p class="mb-1"><strong>Store:</strong> @(currentUser.StoreName ?? "N/A")</p>
+                            <p class="mb-1"><strong>Items Sold:</strong> @currentUser.ItemsSold</p>
+                            @if (currentUser.AverageRating.HasValue)
+                            {
+                                <p class="mb-0"><strong>Rating:</strong> ⭐ @currentUser.AverageRating.Value.ToString("F1")</p>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cart Overview Card -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Shopping Cart</h5>
+                        <p class="display-6 text-primary">@cartItemCount</p>
+                        <p class="text-muted mb-3">Items in cart</p>
+                        <a href="/cart" class="btn btn-primary w-100">View Cart</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Quick Actions</h5>
+                        <a href="/marketplace" class="btn btn-outline-primary w-100 mb-2">Browse Marketplace</a>
+                        @if (currentUser.IsSellerAccount)
+                        {
+                            <a href="/create-listing" class="btn btn-success w-100 mb-2">Create Listing</a>
+                            <a href="/my-listings" class="btn btn-info w-100">Manage Listings</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seller Section -->
+        @if (currentUser.IsSellerAccount)
+        {
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">Seller Dashboard</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 text-center border-end">
+                                    <h3 class="text-primary">@sellerListingCount</h3>
+                                    <p class="text-muted">Active Listings</p>
+                                </div>
+                                <div class="col-md-3 text-center border-end">
+                                    <h3 class="text-success">@currentUser.ItemsSold</h3>
+                                    <p class="text-muted">Items Sold</p>
+                                </div>
+                                <div class="col-md-3 text-center border-end">
+                                    <h3 class="text-warning">@(currentUser.AverageRating?.ToString("F1") ?? "N/A")</h3>
+                                    <p class="text-muted">Average Rating</p>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <a href="/my-listings" class="btn btn-sm btn-success">Manage Listings</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private ApplicationUser? currentUser;
+    private int cartItemCount = 0;
+    private int sellerListingCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            currentUser = await UserManager.GetUserAsync(HttpContext.User);
+            
+            if (currentUser != null)
+            {
+                // Get cart count
+                cartItemCount = await CartService.GetCartCountAsync(currentUser.Id);
+
+                // Get seller listings count if user is a seller
+                if (currentUser.IsSellerAccount)
+                {
+                    var listings = await ListingService.GetSellerListingsAsync(currentUser.Id);
+                    sellerListingCount = listings.Where(l => l.IsAvailable).Count();
+                }
+
+                Logger.LogInformation($"User {currentUser.Email} accessed dashboard");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading dashboard");
+        }
+    }
+}
